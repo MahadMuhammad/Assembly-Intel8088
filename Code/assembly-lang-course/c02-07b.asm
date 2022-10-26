@@ -1,22 +1,26 @@
 ; a program to add three numbers using byte variables
 [org 0x0100]
 
+
      ; for (int c = 3    c > 0     c--) { 
      ;   result += data[c]; 
      ;}
 
 
-
     ; initialize stuff 
     mov  ax, 0              ; reset the accumulator 
-    mov  cx, 3              ; set the iterator count 
+    ;int cx=3
+    mov  cx, 3              ; set the iterator count we have to move 3 times the loop 
     mov  bx, num1           ; set the base 
     
+    ;This is same the loop as c02-07
     outerloop: 
-        add  ax, [bx]
-        add  bx, 2
+        add  ax, [bx];   result += data[c];
+        add  bx, 2  
 
-        sub  cx, 1          
+        ;This is c--
+        sub  cx, 1   
+        ;Jump is zero flag is not set       
         jnz  outerloop 
     
 

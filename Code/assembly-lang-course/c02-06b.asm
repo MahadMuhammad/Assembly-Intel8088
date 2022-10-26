@@ -1,5 +1,9 @@
 ; a program to add three numbers using byte variables
-;
+;When the programs starts the values of registers are zero
+;But in the program the values are not zero
+;So, we zor the ax with ax to zero the whole ax register
+; 1 xor 1 = 0
+; 1 xor 0 = 1
 [org 0x0100]
 
     mov  ax, 0x8787
