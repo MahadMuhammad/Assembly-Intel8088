@@ -13,8 +13,11 @@
     
     mov  ax, 0x4c00
     int  0x21
-
+;db= define byte
+;dw= define word
+;Here [num1]=05 (Not 0005)
 num1: db  5, 10, 15, 0
+; when we define the db then we cannot move this into a 16 bit register
 
 ; something's wrong with this code. 
 ; let's figure out what that is! 

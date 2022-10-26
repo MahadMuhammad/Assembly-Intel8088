@@ -10,7 +10,9 @@
     mov  ax, 0x4c00
     int  0x21
 
-num1:   dw  5
+;num1 is the only label which is only used for our own memory
+;This is just the facility provide by the assembler
+num1:   dw  5 
         dw  10
         dw  15
         dw  0
