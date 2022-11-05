@@ -23,10 +23,6 @@ bubblesort:
     push bp 
     mov  bp, sp 
 
-    push ax   
-    push bx 
-    push cx 
-    push si 
 
     mov  bx, [bp + 6]   ; address of data to sort 
     mov  cx, [bp + 4]   ; number of elements to sort 

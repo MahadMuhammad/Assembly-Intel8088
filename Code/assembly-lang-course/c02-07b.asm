@@ -1,4 +1,5 @@
 ; a program to add three numbers using byte variables
+; flags stores the result of the previous passed function 
 [org 0x0100]
 
 

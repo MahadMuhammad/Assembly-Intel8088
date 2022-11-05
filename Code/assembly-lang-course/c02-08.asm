@@ -1,4 +1,4 @@
-; a program to add three numbers using byte variables
+; a program to add three numbers using byte variables (with loop)
 [org 0x0100]
 
     ; initialize stuff 
