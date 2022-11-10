@@ -3,8 +3,10 @@
 jmp start
 
 start:
-    mov ax,1110 1111 0000 1010b
-    mov bx,111100b 
+    mov ax,2
+l1:
+    push ax ; infinite loop
+    jmp start
     
 
 
