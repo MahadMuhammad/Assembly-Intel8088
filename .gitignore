@@ -9,3 +9,6 @@ npp.8.4.4.portable.x64
 *.lst
 *.exe
 *.lnk
+*.xml
+*.conf
+
