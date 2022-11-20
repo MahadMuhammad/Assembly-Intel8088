@@ -110,6 +110,9 @@ WRONGKEY: db 'Error! Wrong Key Pressed'          ;   Wrong Key Pressed message
 
 WELCOME: db 'Welcome to 4x4 TIC TAC TOE'          ;   Welcome message
 
+GAME_ENDED: db 'The Game Ended! (Good Bye!)'          ;   Game Ended message
+
+PRESSANYKEYTOCONTINUE: db 'Press any key to continue'          ;   Press any key to continue message
 
 ;   --------------------------------------------------------
 ;   BASIC FUNCTIONS
@@ -569,9 +572,56 @@ PrintWELCOME:
         
 
         popa            ;   Restore the registers
+        call PrintPRESSANYKEYTOCONTINUE
         call AnyKeyPress        ;   Wait for any key press
         ret            ;   Return
 ;   --------------------------------------------------------
+PrintGAME_ENDED:
+        call ClearScreen        ;   Clear the screen
+
+        pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,1Ch        ;   attribute byte
+        mov dx,0x0C18   ;   row 22, column 33
+        mov cx,27       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,GAME_ENDED    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+        
+
+        popa            ;   Restore the registers
+        call PrintPRESSANYKEYTOCONTINUE
+        call AnyKeyPress        ;   Wait for any key press
+        call EndGame    ;   End the game
+        ret            ;   Return
+;   -------------------------------------------------------
+PrintPRESSANYKEYTOCONTINUE:
+        ;call ClearScreen        ;   Clear the screen
+        
+        pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,1Ch        ;   attribute byte
+        mov dx,0x1614   ;   row 22, column 33
+        mov cx,25       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,PRESSANYKEYTOCONTINUE    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+        
+
+        popa            ;   Restore the registers
+        call AnyKeyPress        ;   Wait for any key press
+        ret            ;   Return
+;   -------------------------------------------------------
 
 
 ;___________________________________________________________
@@ -581,6 +631,8 @@ PrintWELCOME:
 main:
     call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
     call DisplayBoard   ;   Display the board
+    call AnyKeyPress
+    call PrintGAME_ENDED
     ;call Game
     ;call displayBoard   ;   Display the board
     ;call displayResult  ;   Display the result
