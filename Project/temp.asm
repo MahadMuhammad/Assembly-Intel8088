@@ -37,9 +37,12 @@ scrollup:
         pop bp 
         ret 2 
 start: 
-        mov ax,5 
-        push ax ; push number of lines to scroll 
-        call scrollup ; call the scroll up subroutine 
+        ;mov ax,5 
+        ;push ax ; push number of lines to scroll 
+        ;call scrollup ; call the scroll up subroutine 
+
+        mov ah,0
+	int 0x16
  mov ax, 0x4c00 ; terminate program 
  int 0x21
 

@@ -96,15 +96,20 @@ BOARD:                      ;   Board array
         db 0,0,0,0          ; A | S | D | F
         db 0,0,0,0          ; Z | X | C | V 
 
-TURN:  db 1                 ;   1 = Player 1, 2 = Player 2, 3 = Game Over 
+COUNTS:  db 16             ;   Number of positions on the board
 
 P1WIN: db 'Player-1 Wins!'  ;   Player 1 wins message
 
 P2WIN: db 'Player-2 Wins!'  ;   Player 2 wins message
 
-DRAW:  db 'Draw!'           ;   Game Draw message
+DRAW:  db 'The Game Draw!'           ;   Game Draw message
 
-ERROR: db 'Error!'          ;   Game Error message
+ERROR: db 'Error! (Change the Position), Box Occupied'          ;   Game Error message
+
+WRONGKEY: db 'Error! Wrong Key Pressed'          ;   Wrong Key Pressed message
+
+WELCOME: db 'Welcome to 4x4 TIC TAC TOE'          ;   Welcome message
+
 
 ;   --------------------------------------------------------
 ;   BASIC FUNCTIONS
@@ -112,9 +117,9 @@ ERROR: db 'Error!'          ;   Game Error message
 
 Intro:                             ;   First Prints DOT on screen, wait for user & prints grey color on screen 
                                    ;   Used in main function
+            call PrintWELCOME       ;   Call the AnyKeyPress function
             call Dot               ;   Call the Dot function
-            call AnyKeyPress       ;   Call the AnyKeyPress function
-            call ClearScreen
+            
             pusha                  ;   Save the registers
 
             mov ax,0xb800   ;   Set the video memory address
@@ -407,6 +412,7 @@ Dot:                        ;   Prints dots on screen  (Used in Intro function)
         rep stosw           ;   Fill the video memory with the attribute byte
 
         popa                ;   Restore the registers
+        call AnyKeyPress        ;   Wait for any key press
         ret                 ;   Return (to the Intro function)
 ;   --------------------------------------------------------
 AnyKeyPress:                ;   Wait for any key press  (Used in Intro function)
@@ -445,6 +451,129 @@ Delay:                    ;   Delay function
         ret                ;   Return to the caller
 ;   --------------------------------------------------------
 
+PrintP1WIN:
+        pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,1Ch        ;   attribute byte
+        mov dx,0x1621   ;   row 22, column 33
+        mov cx,14       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,P1WIN    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+
+
+
+        popa            ;   Restore the registers
+        ret            ;   Return 
+;   --------------------------------------------------------
+
+PrintP2WIN:
+        pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,1Ch        ;   attribute byte
+        mov dx,0x1621   ;   row 22, column 33
+        mov cx,14       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,P2WIN    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+
+
+
+        popa            ;   Restore the registers
+        ret            ;   Return 
+;   --------------------------------------------------------
+PrintDRAW:
+        pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,1Ch        ;   attribute byte
+        mov dx,0x1621   ;   row 22, column 33
+        mov cx,14       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,DRAW    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+
+
+        popa            ;   Restore the registers
+        ret            ;   Return 
+;   --------------------------------------------------------
+PrintERROR:
+        pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,1Ch        ;   attribute byte
+        mov dx,0x1614   ;   row 22, column 33
+        mov cx,42       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,ERROR    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+
+
+        popa            ;   Restore the registers
+        ret            ;   Return 
+;   --------------------------------------------------------
+PrintWRONGKEY:
+        pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,1Ch        ;   attribute byte
+        mov dx,0x1616   ;   row 22, column 33
+        mov cx,24       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,WRONGKEY    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+
+
+        popa            ;   Restore the registers
+        ret            ;   Return
+;   --------------------------------------------------------
+PrintWELCOME:
+        call ClearScreen        ;   Clear the screen
+
+
+        pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,1Ch        ;   attribute byte
+        mov dx,0x0C18   ;   row 22, column 33
+        mov cx,26       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,WELCOME    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+        
+
+        popa            ;   Restore the registers
+        call AnyKeyPress        ;   Wait for any key press
+        ret            ;   Return
+;   --------------------------------------------------------
+
+
 ;___________________________________________________________
 ;   --------------------------------------------------------
 ;   FUNCTION: main
@@ -452,13 +581,10 @@ Delay:                    ;   Delay function
 main:
     call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
     call DisplayBoard   ;   Display the board
-    ;call player1        ;   Player 1 turn
-    ;call player2        ;   Player 2 turn
-    ;call checkWin       ;   Check if the game is won
-    ;call checkDraw      ;   Check if the game is a draw
+    ;call Game
     ;call displayBoard   ;   Display the board
     ;call displayResult  ;   Display the result
-    ;ret                 ;   Return to the caller
+
 
 
 
