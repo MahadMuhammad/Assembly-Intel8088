@@ -90,7 +90,7 @@
 ;   DEFINITIONS
 ;   --------------------------------------------------------
 
-board:  
+BOARD:                      ;   Board array
         db 0,0,0,0          ; 1 | 2 | 3 | 4
         db 0,0,0,0          ; Q | W | E | R
         db 0,0,0,0          ; A | S | D | F
@@ -114,6 +114,7 @@ Intro:                             ;   First Prints DOT on screen, wait for user
                                    ;   Used in main function
             call Dot               ;   Call the Dot function
             call AnyKeyPress       ;   Call the AnyKeyPress function
+            call ClearScreen
             pusha                  ;   Save the registers
 
             mov ax,0xb800   ;   Set the video memory address
@@ -121,13 +122,33 @@ Intro:                             ;   First Prints DOT on screen, wait for user
             mov di,0        ;   Set a pointer to the start of the video memory
             mov ah,0x77     ;   set color ASCII code (0111 0111)
             mov al,20h      ;   set the blank character     
-            mov cx,2000     ;   set the number of characters to write
+            mov cx,80*1     ;   set the number of characters to write (Only First Line)
             cld             ;   clear direction flag
             rep stosw       ;   Fill the video memory with the attribute byte
 
+
+            mov ax,0xb800   ;   Set the video memory address
+            mov es,ax       ;   Set the video memory segment
+            mov di,160      ;   Set a pointer to the start of the video memory
+            mov ah,0x60     ;   set color ASCII code (0111 1111)
+            mov al,20h      ;   set the blank character     
+            mov cx,2000-80  ;   set the number of characters to write
+            cld             ;   clear direction flag
+            rep stosw       ;   Fill the video memory with the attribute byte
+
+            mov ax,0xb800   ;   Set the video memory address
+            mov es,ax       ;   Set the video memory segment
+            mov di,160*24        ;   Set a pointer to the start of the video memory
+            mov ah,0x30     ;   set color ASCII code (0111 1111)
+            mov al,20h      ;   set the blank character     
+            mov cx,80*25    ;   set the number of characters to write
+            cld             ;   clear direction flag
+            rep stosw       ;   Fill the video memory with the attribute byte
+
+
     
             popa            ;   Restore the registers
-            ret
+            ret             ;   Return (to the main function)
 ;   --------------------------------------------------------
 
 
@@ -144,7 +165,7 @@ Dot:                        ;   Prints dots on screen  (Used in Intro function)
         mov ax,0xb800       ;   Set the video memory address
         mov es,ax           ;   Set the video memory segment
         mov di,0            ;   Set a pointer to the start of the video memory
-        mov ah,0x0e         ;   Set the attribute byte
+        mov ah,0x0e         ;   Set the attribute byte (0x0e)
         mov al,0x07         ;   Set the color to white
         mov [es:di],al      ;   Set the color to white
         mov cx,2000
@@ -153,7 +174,7 @@ Dot:                        ;   Prints dots on screen  (Used in Intro function)
         rep stosw           ;   Fill the video memory with the attribute byte
 
         popa                ;   Restore the registers
-        ret
+        ret                 ;   Return (to the Intro function)
 ;   --------------------------------------------------------
 AnyKeyPress:                ;   Wait for any key press  (Used in Intro function)
         pusha               ;   Save the registers
@@ -162,7 +183,22 @@ AnyKeyPress:                ;   Wait for any key press  (Used in Intro function)
         int 0x16            ;   Call the interrupt
 
         popa                ;   Restore the registers
-        ret
+        ret                 ;   Return (to the Intro function)
+;   --------------------------------------------------------
+ClearScreen:                ;   CLear Screen with spaces
+        pusha               ;   Save the registers  
+
+        mov ax,0xb800       ;   Set the video memory address
+        mov es,ax           ;   Set the video memory segment
+        mov di,0            ;   Set a pointer to the start of the video memory
+        mov ax,0x0720       ;   Set the attribute byte (0x0e)
+        mov cx,2000         ;   Set the number of characters to write
+
+        cld
+        rep stosw           ;   Fill the video memory with the attribute byte
+
+        popa                ;   Restore the registers
+        ret                 ;   Return (to the Intro function)
 ;   --------------------------------------------------------
 Delay:                    ;   Delay function 
         pusha             ;   Save the registers
@@ -197,6 +233,10 @@ main:
 
 
 
-end:
+EndGame:                ; End Function (Terminates the Program)
     mov ax, 0x4c00      ; Exit to DOS
     int 21h             ; Call DOS interrupt
+;   --------------------------------------------------------
+;   END OF CODE
+;   --------------------------------------------------------
+;___________________________________________________________
