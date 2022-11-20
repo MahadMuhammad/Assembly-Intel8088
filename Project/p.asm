@@ -151,6 +151,239 @@ Intro:                             ;   First Prints DOT on screen, wait for user
             ret             ;   Return (to the main function)
 ;   --------------------------------------------------------
 
+DisplayBoard:
+        pusha                  ;   Save the registers
+
+        
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160+2     ;   Set a pointer to the start of the video memory
+                        mov ah,0     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-2   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        
+                        
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*2+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*3+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*4+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*5+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*6+4     ;   Set a pointer to the start of the video memory
+                        mov ah,00     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*7+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*8+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*9+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*10+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*11+4     ;   Set a pointer to the start of the video memory
+                        mov ah,000     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*12+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*13+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*14+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*15+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*16+4     ;   Set a pointer to the start of the video memory
+                        mov ah,00     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*17+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*18+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*19+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*20+4     ;   Set a pointer to the start of the video memory
+                        mov ah,060     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-4   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        mov ax,0xb800   ;   Set the video memory address
+                        mov es,ax       ;   Set the video memory segment
+                        mov di,160*21+2     ;   Set a pointer to the start of the video memory
+                        mov ah,0     ;   set color ASCII code (0111 1111)
+                        mov al,20h      ;   set the blank character     
+                        mov cx,80-2   ;   set the number of characters to write
+                        cld             ;   clear direction flag
+                        rep stosw       ;   Fill the video memory with the attribute byte
+
+                        ; Print Centre & left line
+                        mov ax, 0xb800 ; load video base in ax 
+                        mov es, ax ; point es to video base 
+                        mov di, 160*2+2 ; point di to top left column 
+                                nextchar: 
+                                                mov word [es:di], 0x0020 ; clear next char on screen 
+                                                add di, 80 ; move to next screen location 
+                                                cmp di, 3362 ; has the whole screen cleared 
+                                                jne nextchar ; if no clear next position 
+                        
+                        ; Print Right vertical Line
+                        mov ax, 0xb800 ; load video base in ax 
+                        mov es, ax ; point es to video base 
+                        mov di, 160*3-4 ; point di to top left column 
+                                nextchar2: 
+                                                mov word [es:di], 0x0020 ; clear next char on screen 
+                                                add di, 160 ; move to next screen location 
+                                                cmp di, 3516 ; has the whole screen cleared 876
+                                                jne nextchar2 ; if no clear next position
+
+                         ; Print Right vertical Line
+                        mov ax, 0xb800 ; load video base in ax 
+                        mov es, ax ; point es to video base 
+                        mov di, 362 ; point di to top left column  (160*2+2)+(322+80)= 724 | 724/2=362
+                                nextchar3: 
+                                                mov word [es:di], 0x0020 ; clear next char on screen 
+                                                add di, 80 ; move to next screen location 
+                                                cmp di, 3402 ; has the whole screen cleared 876
+                                                jne nextchar3 ; if no clear next position
+
+                        
+
+
+
+
+        popa            ;   Restore the registers
+        ret             ;   Return (to the main function)
 
 
 
@@ -202,9 +435,10 @@ ClearScreen:                ;   CLear Screen with spaces
 ;   --------------------------------------------------------
 Delay:                    ;   Delay function 
         pusha             ;   Save the registers
-	    mov cx,0xffff     ;   Set the counter to 0xffff
-
-	    LoopDelay:                  ;   LoopDelay label
+	
+        mov cx,0xffff     ;   Set the counter to 0xffff
+	    
+            LoopDelay:                  ;   LoopDelay label
 	    	    loop LoopDelay      ;   Loop the LoopDelay label
         
         popa               ;   Restore the registers
@@ -217,8 +451,7 @@ Delay:                    ;   Delay function
 ;   --------------------------------------------------------
 main:
     call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
-    ;call initBoard      ;   Initialize the board
-    ;call displayBoard   ;   Display the board
+    call DisplayBoard   ;   Display the board
     ;call player1        ;   Player 1 turn
     ;call player2        ;   Player 2 turn
     ;call checkWin       ;   Check if the game is won
