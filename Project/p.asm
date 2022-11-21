@@ -114,6 +114,10 @@ GAME_ENDED: db 'The Game Ended! (Good Bye!)'          ;   Game Ended message
 
 PRESSANYKEYTOCONTINUE: db 'Press any key to continue'          ;   Press any key to continue message
 
+P1TURN: db 'Player-1 Turn'          ;   Player 1 Turn message
+
+P2TURN: db 'Player-2 Turn'          ;   Player 2 Turn message
+
 ;   --------------------------------------------------------
 ;   BASIC FUNCTIONS
 ;   --------------------------------------------------------
@@ -156,10 +160,10 @@ Intro:                             ;   First Prints DOT on screen, wait for user
 
     
             popa            ;   Restore the registers
+           
             ret             ;   Return (to the main function)
 ;   --------------------------------------------------------
-
-DisplayBoard:
+DisplayBoard:                   ; Display the board & call P1Turn function
         pusha                  ;   Save the registers
 
         
@@ -391,12 +395,44 @@ DisplayBoard:
 
 
         popa            ;   Restore the registers
+        call PrintP1TURN    ;   Call the PrintP1TURN function
         ret             ;   Return (to the main function)
 
 
 
 
-;___________________________________________________________
+;   --------------------------------------------------------
+ClearThatUserSegment:
+        pusha           ;   Save the registers
+
+        mov ax,0xb800   ;   Set the video memory address
+        mov es,ax       ;   Set the video memory segment
+        mov di,160*22+2     ;   Set a pointer to the start of the video memory
+        mov ah,0x60     ;   set color ASCII code (0111 1111)
+        mov al,20h      ;   set the blank character     
+        mov cx,80-2   ;   set the number of characters to write
+        cld             ;   clear direction flag
+        rep stosw       ;   Fill the video memory with the attribute byte
+
+        popa            ;   Restore the registers
+        ret             ;   Return
+;   --------------------------------------------------------
+ClearThatUpperSegment:
+        pusha           ;   Save the registers
+
+        mov ax,0xb800   ;   Set the video memory address
+        mov es,ax       ;   Set the video memory segment
+        mov di,160+2     ;   Set a pointer to the start of the video memory
+        mov ah,0     ;   set color ASCII code (0111 1111)
+        mov al,20h      ;   set the blank character     
+        mov cx,80-2   ;   set the number of characters to write
+        cld             ;   clear direction flag
+        rep stosw       ;   Fill the video memory with the attribute byte
+
+        popa            ;   Restore the registers
+        ret             ;   Return
+;   --------------------------------------------------------
+
 ;   --------------------------------------------------------
 ;   EXTRA FUNCTIONS
 ;   --------------------------------------------------------
@@ -453,7 +489,6 @@ Delay:                    ;   Delay function
         popa               ;   Restore the registers
         ret                ;   Return to the caller
 ;   --------------------------------------------------------
-
 PrintP1WIN:
         pusha
 
@@ -474,7 +509,6 @@ PrintP1WIN:
         popa            ;   Restore the registers
         ret            ;   Return 
 ;   --------------------------------------------------------
-
 PrintP2WIN:
         pusha
 
@@ -622,6 +656,48 @@ PrintPRESSANYKEYTOCONTINUE:
         call AnyKeyPress        ;   Wait for any key press
         ret            ;   Return
 ;   -------------------------------------------------------
+PrintP1TURN:
+        ;call ClearScreen        ;   Clear the screen
+
+        pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,1Ch        ;   attribute byte
+        mov dx,0x0118   ;   row 22, column 33
+        mov cx,13       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,P1TURN    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+        
+
+        popa            ;   Restore the registers
+        ret            ;   Return
+;     -------------------------------------------------------
+PrintP2TURN:
+        ;call ClearScreen        ;   Clear the screen
+
+        pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,1Ch        ;   attribute byte
+        mov dx,0x0118   ;   row 22, column 33
+        mov cx,13       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,P2TURN    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+        
+
+        popa            ;   Restore the registers
+        ret            ;   Return
+;     -------------------------------------------------------
 
 
 ;___________________________________________________________
@@ -631,6 +707,14 @@ PrintPRESSANYKEYTOCONTINUE:
 main:
     call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
     call DisplayBoard   ;   Display the board
+    call PrintP1WIN     ;   Print P1WIN
+    call AnyKeyPress
+    call ClearThatUserSegment       ;   Clear that PrintP1WIN segment
+    call AnyKeyPress
+    call PrintP1TURN
+    call AnyKeyPress
+    call ClearThatUpperSegment       ;   Clear that PrintP1TURN segment
+    call AnyKeyPress
     call AnyKeyPress
     call PrintGAME_ENDED
     ;call Game
