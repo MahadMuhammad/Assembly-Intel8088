@@ -96,7 +96,7 @@ BOARD:                      ;   Board array
         db 0,0,0,0          ; A | S | D | F
         db 0,0,0,0          ; Z | X | C | V 
 
-COUNTS:  db 16             ;   Number of positions on the board
+COUNTS:  db 15             ;   Number of positions on the board
 
 P1WIN: db 'Player-1 Wins!'  ;   Player 1 wins message
 
@@ -111,6 +111,7 @@ WRONGKEY: db 'Error! Wrong Key Pressed'          ;   Wrong Key Pressed message
 WELCOME: db 'Welcome to 4x4 TIC TAC TOE'          ;   Welcome message
 
 GAME_ENDED: db 'The Game Ended! (Good Bye!)'          ;   Game Ended message
+
 
 PRESSANYKEYTOCONTINUE: db 'Press any key to continue'          ;   Press any key to continue message
 

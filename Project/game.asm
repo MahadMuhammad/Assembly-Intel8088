@@ -239,6 +239,16 @@ CheckWinP2:
 
         popa
         ret
-;----------------------------------------------------------------------------------------------------------------
+;   --------------------------------------------------------
 CheckDraw:
+        push cx         ; Save the value of cx
+        mov cx,[COUNTS] ; Move the value of COUNTS to cx
+        cmp cx,0        ; Check if the value of COUNTS is 0
+        je TheGameDraws ; If yes, jump to TheGameDraws
+        pop cx          ; Restore the value of cx
         ret
+;   --------------------------------------------------------
+TheGameDraws:
+        call ClearThatUserSegment       ; Clear the user segment
+        call PrintDRAW                  ; Print DRAW
+        call PrintGAME_ENDED            ; Print GAME ENDED
