@@ -27,7 +27,11 @@ Game:
         ret
 ;   --------------------------------------------------------
 Player1:
+        pusha
+        
 
+
+        popa
         ret
 Player2:
         ret
@@ -130,8 +134,9 @@ CheckWinP1:
 
 
         P1Win:
-
-
+                call PrintP1WIN
+                call PrintGAME_ENDED
+        P1NotWin:
         popa
         ret
 ;   --------------------------------------------------------

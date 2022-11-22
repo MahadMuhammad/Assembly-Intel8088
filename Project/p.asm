@@ -52,6 +52,7 @@
 ;       i. The first diagonal is filled with Xs or Os
 ;       j. The second diagonal is filled with Xs or Os
 ;   2. The game is a draw if all the positions are filled and no player has won
+; Links https://kb.iu.edu/d/aanc
 ;   --------------------------------------------------------
 ;___________________________________________________________
 ;   --------------------------------------------------------
@@ -91,12 +92,14 @@
 ;   --------------------------------------------------------
 
 BOARD:                      ;   Board array
-        db 0,0,0,0          ; 1 | 2 | 3 | 4
-        db 0,0,0,0          ; Q | W | E | R
-        db 0,0,0,0          ; A | S | D | F
-        db 0,0,0,0          ; Z | X | C | V 
+        db 2,2,2,2          ; 1 | 2 | 3 | 4
+        db 2,2,2,2          ; Q | W | E | R
+        db 2,2,2,2          ; A | S | D | F
+        db 2,2,2,2          ; Z | X | C | V 
 
 COUNTS:  db 15             ;   Number of positions on the board
+
+P1ORP2:  db 1              ;   Player 1 or Player 2
 
 P1WIN: db 'Player-1 Wins!'  ;   Player 1 wins message
 
@@ -120,6 +123,9 @@ P2TURN: db 'Player-2 Turn'          ;   Player 2 Turn message
 
 MESSAGETICTACTOE: db 'Welcome To TIC TAC TOE by MAHAD', 0       ;  Message to be displayed at the top of screen
 
+P1oldisr: dd 0         ;   Player 1 old interrupt service routine
+
+INPUT: db 0             ;   Input from the keyboard
 ;   --------------------------------------------------------
 ;   BASIC FUNCTIONS
 ;   --------------------------------------------------------
@@ -494,12 +500,13 @@ Delay:                    ;   Delay function
         ret                ;   Return to the caller
 ;   --------------------------------------------------------
 PrintP1WIN:
+        call ClearThatUpperSegment
         pusha
 
         mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
         mov al,1        ;   subservice - update cursor position
         mov bh,0        ;   page number
-        mov bl,1Ch        ;   attribute byte
+        mov bl,9Ch        ;   attribute byte ;1Ch
         mov dx,0x1621   ;   row 22, column 33
         mov cx,14       ;   number of characters to write (Length of string)
         push cs         ;   push the segment of the string
@@ -511,6 +518,7 @@ PrintP1WIN:
 
 
         popa            ;   Restore the registers
+        call AnyKeyPress        ;   Wait for any key press
         ret            ;   Return 
 ;   --------------------------------------------------------
 PrintP2WIN:
@@ -519,7 +527,7 @@ PrintP2WIN:
         mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
         mov al,1        ;   subservice - update cursor position
         mov bh,0        ;   page number
-        mov bl,1Ch        ;   attribute byte
+        mov bl,9Ch        ;   attribute byte
         mov dx,0x1621   ;   row 22, column 33
         mov cx,14       ;   number of characters to write (Length of string)
         push cs         ;   push the segment of the string
@@ -531,6 +539,7 @@ PrintP2WIN:
 
 
         popa            ;   Restore the registers
+        call AnyKeyPress        ;   Wait for any key press
         ret            ;   Return 
 ;   --------------------------------------------------------
 PrintDRAW:
@@ -783,87 +792,6 @@ PrintMESSAGETICTACTOE:
         popa            ;   Restore the registers
         ret             ;   Return
 ;  -------------------------------------------------------
-InsertValuesInBoard:
-        pusha           ;   Save the registers
-
-        mov ax,0xb800           ;   Set the segment register to the video memory
-        mov es,ax               ;   Set the segment register to the video memory
-        mov ah,0x3F             ;   Set the attribute byte;3Ch is the attribute byte for the board
-        
-
-        ;   Print the first row
-        mov cx,4
-        mov di,160*4+20           ;   Set the index register to the start of the video memory
-        mov si,0                ;   Set the value to be written to the video memory
-        L1InsertValuesInBoard:  ;   Loop 1
-                
-                mov bl,[BOARD+si]          ;   Set the attribute byte
-                cmp bl,1                ;   Check if the board is empty
-                je InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
-                mov al,79       ;   Set the character byte
-                jmp InsertValuesInBoard2 ;   Jump to the next step
-                        InsertValuesInBoard1:           mov al,88       ;   Set the character byte
-                        InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
-                add di,40
-                inc si
-                loop L1InsertValuesInBoard
-
-        ;   Print the second row
-        mov cx,4
-        mov di,160*9+20           ;   Set the index register to the start of the video memory
-        mov si,4                ;   Set the value to be written to the video memory
-        L2InsertValuesInBoard:  ;   Loop 1
-                
-                mov bl,[BOARD+si]          ;   Set the attribute byte
-                cmp bl,1                ;   Check if the board is empty
-                je L2InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
-                mov al,79       ;   Set the character byte
-                jmp L2InsertValuesInBoard2 ;   Jump to the next step
-                        L2InsertValuesInBoard1:           mov al,88       ;   Set the character byte
-                        L2InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
-                add di,40
-                inc si
-                loop L2InsertValuesInBoard
-
-
-        ;   Print the third row
-        mov cx,4
-        mov di,160*14+20           ;   Set the index register to the start of the video memory
-        mov si,8                ;   Set the value to be written to the video memory
-        L3InsertValuesInBoard:  ;   Loop 1
-                
-                mov bl,[BOARD+si]          ;   Set the attribute byte
-                cmp bl,1                ;   Check if the board is empty
-                je L3InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
-                mov al,79       ;   Set the character byte
-                jmp L3InsertValuesInBoard2 ;   Jump to the next step
-                        L3InsertValuesInBoard1:           mov al,88       ;   Set the character byte
-                        L3InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
-                add di,40
-                inc si
-                loop L3InsertValuesInBoard
-
-        ;  Print the fourth row
-        mov cx,4
-        mov di,160*19+20           ;   Set the index register to the start of the video memory
-        mov si,12                ;   Set the value to be written to the video memory
-        L4InsertValuesInBoard:  ;   Loop 1
-                
-                mov bl,[BOARD+si]          ;   Set the attribute byte
-                cmp bl,1                ;   Check if the board is empty
-                je L4InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
-                mov al,79       ;   Set the character byte
-                jmp L4InsertValuesInBoard2 ;   Jump to the next step
-                        L4InsertValuesInBoard1:           mov al,88       ;   Set the character byte
-                        L4InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
-                add di,40
-                inc si
-                loop L4InsertValuesInBoard
-        
-
-        popa            ;   Restore the registers
-        ret             ;   Return
-;  -------------------------------------------------------
 ColorWhiteScreen:
         pusha        ;   Save the registers
 
@@ -879,6 +807,452 @@ ColorWhiteScreen:
         popa          ;   Restore the registers
         ret           ;   Return
 ;  -------------------------------------------------------
+
+
+;___________________________________________________________
+;   --------------------------------------------------------
+;   GAME LOGIC
+;   --------------------------------------------------------
+P1Win:
+                call PrintP1WIN
+                call PrintGAME_ENDED
+                ret
+;  -------------------------------------------------------
+P2Win:
+                call PrintP2WIN
+                call PrintGAME_ENDED
+                ret
+;  -------------------------------------------------------
+CheckWinP1:
+        pusha
+
+                P1R1:
+                        cmp byte [BOARD+0],0         ; Check if the first row is filled with 0
+                        jne P1R2                ; If not, jump to P1R2
+                        cmp byte [BOARD+1],0       ; Check if the second row is filled with 0
+                        jne P1R2                ; If not, jump to P1R2
+                        cmp byte [BOARD+2],0       ; Check if the third row is filled with 0
+                        jne P1R2                ; If not, jump to P1R2
+                        cmp byte [BOARD+3],0       ; Check if the fourth row is filled with 0
+                        je P1Win                ; If yes, jump to P1Win
+                P1R2:
+                        cmp byte [BOARD+4],0       ; Check if the first row is filled with 0
+                        jne P1R3                ; If not, jump to P1R3
+                        cmp byte [BOARD+5],0       ; Check if the second row is filled with 0
+                        jne P1R3                ; If not, jump to P1R3
+                        cmp byte [BOARD+6],0       ; Check if the third row is filled with 0
+                        jne P1R3                ; If not, jump to P1R3
+                        cmp byte [BOARD+7],0       ; Check if the fourth row is filled with 0
+                        je P1Win                ; If yes, jump to P1Win
+                P1R3:
+                        cmp byte [BOARD+8],0       ; Check if the first row is filled with 0
+                        jne P1R4                ; If not, jump to P1R4
+                        cmp byte [BOARD+9],0       ; Check if the second row is filled with 0
+                        jne P1R4                ; If not, jump to P1R4
+                        cmp byte [BOARD+10],0      ; Check if the third row is filled with 0
+                        jne P1R4                ; If not, jump to P1R4
+                        cmp byte [BOARD+11],0      ; Check if the fourth row is filled with 0
+                        je P1Win                ; If yes, jump to P1Win
+                P1R4:   
+                        cmp byte [BOARD+12],0      ; Check if the first row is filled with 0
+                        jne P1C1                ; If not, jump to P1C1
+                        cmp byte [BOARD+13],0      ; Check if the second row is filled with 0
+                        jne P1C1                ; If not, jump to P1C1
+                        cmp byte [BOARD+14],0      ; Check if the third row is filled with 0
+                        jne P1C1                ; If not, jump to P1C1
+                        cmp byte [BOARD+15],0      ; Check if the fourth row is filled with 0
+                        je P1Win                ; If yes, jump to P1Win
+                P1C1:
+                        cmp byte [BOARD+0],0      ; Check if the first row is filled with 0
+                        jne P1C2                ; If not, jump to P1C2
+                        cmp byte [BOARD+4],0       ; Check if the second row is filled with 0
+                        jne P1C2                ; If not, jump to P1C2
+                        cmp byte [BOARD+8],0       ; Check if the third row is filled with 0
+                        jne P1C2                ; If not, jump to P1C2
+                        cmp byte [BOARD+12],0      ; Check if the fourth row is filled with 0
+                        je P1Win                ; If yes, jump to P1Win
+                P1C2:
+                        cmp byte [BOARD+1],0      ; Check if the first row is filled with 0
+                        jne P1C3                ; If not, jump to P1C3
+                        cmp byte [BOARD+5],0       ; Check if the second row is filled with 0
+                        jne P1C3                ; If not, jump to P1C3
+                        cmp byte [BOARD+9],0       ; Check if the third row is filled with 0
+                        jne P1C3                ; If not, jump to P1C3
+                        cmp byte [BOARD+13],0      ; Check if the fourth row is filled with 0
+                        je P1Win                ; If yes, jump to P1Win
+                P1C3:
+                        cmp byte [BOARD+2],0      ; Check if the first row is filled with 0
+                        jne P1C4                ; If not, jump to P1C4
+                        cmp byte [BOARD+6],0       ; Check if the second row is filled with 0
+                        jne P1C4                ; If not, jump to P1C4
+                        cmp byte [BOARD+10],0      ; Check if the third row is filled with 0
+                        jne P1C4                ; If not, jump to P1C4
+                        cmp byte [BOARD+14],0      ; Check if the fourth row is filled with 0
+                        je P1Win                ; If yes, jump to P1Win
+                P1C4:
+                        cmp byte [BOARD+3],0       ; Check if the first row is filled with 0
+                        jne P1D1                ; If not, jump to P1D1
+                        cmp byte [BOARD+6],0       ; Check if the second row is filled with 0
+                        jne P1D1                ; If not, jump to P1D1
+                        cmp byte [BOARD+9],0       ; Check if the third row is filled with 0
+                        jne P1D1                ; If not, jump to P1D1
+                        cmp byte [BOARD+12],0      ; Check if the fourth row is filled with 0
+                        je P1Win                ; If yes, jump to P1Win
+                P1D1:
+                        cmp byte [BOARD+0],0       ; Check if the first row is filled with 0
+                        jne P1D2                ; If not, jump to P1D2
+                        cmp byte [BOARD+5],0       ; Check if the second row is filled with 0
+                        jne P1D2                ; If not, jump to P1D2
+                        cmp byte [BOARD+10],0      ; Check if the third row is filled with 0
+                        jne P1D2                ; If not, jump to P1D2
+                        cmp byte [BOARD+15],0      ; Check if the fourth row is filled with 0
+                        je P1Win                ; If yes, jump to P1Win 
+                P1D2:
+                        cmp byte [BOARD+3],0      ; Check if the first row is filled with 0
+                        jne P1NotWin                ; If not, jump to P1D3 
+                        cmp byte [BOARD+6],0       ; Check if the second row is filled with 0
+                        jne P1NotWin                ; If not, jump to P1D3
+                        cmp byte [BOARD+9],0       ; Check if the third row is filled with 0
+                        jne P1NotWin                ; If not, jump to P1D3
+                        cmp byte [BOARD+12],0      ; Check if the fourth row is filled with 0
+        
+        
+        P1NotWin:
+                popa
+                ret
+;   ------------------------------------------------------
+CheckWinP2:
+        pusha
+
+        mov ax,BOARD    ; Points ax to the start of the board
+
+                P2R1:
+                        cmp byte [BOARD+0],1       ; Check if the first row is filled with 1
+                        jne P2R2                ; If not, jump to P2R2
+                        cmp byte [BOARD+1],1       ; Check if the second row is filled with 1
+                        jne P2R2                ; If not, jump to P2R2
+                        cmp byte [BOARD+2],1       ; Check if the third row is filled with 1
+                        jne P2R2                ; If not, jump to P2R2
+                        cmp byte [BOARD+3],1       ; Check if the fourth row is filled with 1
+                        je P2Win                ; If yes, jump to P2Win
+                P2R2:
+                        cmp byte [BOARD+4],1       ; Check if the first row is filled with 1
+                        jne P2R3                ; If not, jump to P2R3
+                        cmp byte [BOARD+5],1       ; Check if the second row is filled with 1
+                        jne P2R3                ; If not, jump to P2R3
+                        cmp byte [BOARD+6],1       ; Check if the third row is filled with 1
+                        jne P2R3                ; If not, jump to P2R3
+                        cmp byte [BOARD+7],1       ; Check if the fourth row is filled with 1
+                        je P2Win                ; If yes, jump to P2Win
+                P2R3:
+                        cmp byte [BOARD+8],1       ; Check if the first row is filled with 1
+                        jne P2R4                ; If not, jump to P2R4
+                        cmp byte [BOARD+9],1       ; Check if the second row is filled with 1
+                        jne P2R4                ; If not, jump to P2R4
+                        cmp byte [BOARD+10],1      ; Check if the third row is filled with 1
+                        jne P2R4                ; If not, jump to P2R4
+                        cmp byte [BOARD+11],1      ; Check if the fourth row is filled with 1
+                        je P2Win                ; If yes, jump to P2Win
+                P2R4:
+                        cmp byte [BOARD+12],1      ; Check if the first row is filled with 1
+                        jne P2C1                ; If not, jump to P2C1
+                        cmp byte [BOARD+13],1      ; Check if the second row is filled with 1
+                        jne P2C1                ; If not, jump to P2C1
+                        cmp byte [BOARD+14],1      ; Check if the third row is filled with 2
+                        jne P2C1                ; If not, jump to P2C1
+                        cmp byte [BOARD+15],1      ; Check if the fourth row is filled with 1
+                        je P2Win                ; If yes, jump to P2Win
+                P2C1:
+                        cmp byte [BOARD+0],1       ; Check if the first row is filled with 1
+                        jne P2C2                ; If not, jump to P2C2
+                        cmp byte [BOARD+4],1       ; Check if the second row is filled with 1
+                        jne P2C2                ; If not, jump to P2C2
+                        cmp byte [BOARD+8],1       ; Check if the third row is filled with 1
+                        jne P2C2                ; If not, jump to P2C2
+                        cmp byte [BOARD+12],1      ; Check if the fourth row is filled with 1
+                        je P2Win                ; If yes, jump to P2Win
+                P2C2:
+                        cmp byte [BOARD+1],1       ; Check if the first row is filled with 1
+                        jne P2C3                ; If not, jump to P2C3
+                        cmp byte [BOARD+5],1       ; Check if the second row is filled with 1
+                        jne P2C3                ; If not, jump to P2C3
+                        cmp byte [BOARD+9],1       ; Check if the third row is filled with 1
+                        jne P2C3                ; If not, jump to P2C3
+                        cmp byte [BOARD+13],1      ; Check if the fourth row is filled with 1
+                        je P2Win                ; If yes, jump to P2Win
+                P2C3:
+                        cmp byte [BOARD+2],1       ; Check if the first row is filled with 1
+                        jne P2C4                ; If not, jump to P2C4
+                        cmp byte [BOARD+6],1       ; Check if the second row is filled with 1
+                        jne P2C4                ; If not, jump to P2C4
+                        cmp byte [BOARD+10],1      ; Check if the third row is filled with 1
+                        jne P2C4                ; If not, jump to P2C4
+                        cmp byte [BOARD+14],1      ; Check if the fourth row is filled with 1
+                        je P2Win                ; If yes, jump to P2Win
+                P2C4:
+                        cmp byte [BOARD+3],1       ; Check if the first row is filled with 1
+                        jne P2D1                ; If not, jump to P2D1
+                        cmp byte [BOARD+6],1       ; Check if the second row is filled with 1
+                        jne P2D1                ; If not, jump to P2D1
+                        cmp byte [BOARD+9],1       ; Check if the third row is filled with 1
+                        jne P2D1                ; If not, jump to P2D1
+                        cmp byte [BOARD+12],1      ; Check if the fourth row is filled with 1
+                        je P2Win                ; If yes, jump to P2Win
+                P2D1:
+                        cmp byte [BOARD+0],1       ; Check if the first row is filled with 1
+                        jne P2D2                ; If not, jump to P2D2
+                        cmp byte [BOARD+5],1       ; Check if the second row is filled with 1
+                        jne P2D2                ; If not, jump to P2D2
+                        cmp byte [BOARD+10],1      ; Check if the third row is filled with 1
+                        jne P2D2                ; If not, jump to P2D2
+                        cmp byte [BOARD+15],1      ; Check if the fourth row is filled with 1
+                        je P2Win                ; If yes, jump to P2Win
+                P2D2:
+                        cmp byte [BOARD+3],1       ; Check if the first row is filled with 1
+                        jne P2NotWin              ; If not, jump to P2Draw
+                        cmp byte [BOARD+6],1       ; Check if the second row is filled with 1
+                        jne P2NotWin              ; If not, jump to P2Draw
+                        cmp byte [BOARD+9],1       ; Check if the third row is filled with 1
+                        jne P2NotWin              ; If not, jump to P2Draw
+                        cmp byte [BOARD+12],1      ; Check if the fourth row is filled with 1
+                        je P2Win                ; If yes, jump to P2Win
+
+        P2NotWin:
+                popa
+                ret
+;   --------------------------------------------------------
+InsertValuesInBoard:
+        pusha           ;   Save the registers
+
+        mov ax,0xb800           ;   Set the segment register to the video memory
+        mov es,ax               ;   Set the segment register to the video memory
+        mov ah,0x3F             ;   Set the attribute byte;3Ch is the attribute byte for the board
+        
+
+        ;   Print the first row
+        mov cx,4
+        mov di,160*4+20           ;   Set the index register to the start of the video memory
+        mov si,0                ;   Set the value to be written to the video memory
+                L1InsertValuesInBoard:  ;   Loop 1
+
+                        mov bl,[BOARD+si]          ;   Get the value from the board
+                        cmp bl,2                        ;   Check if the value is 2
+                        je L1InsertValuesInBoardStart
+                        cmp bl,1                ;   Check if the board is empty
+                        je InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
+                        mov al,79       ;   Set the character byte
+                        jmp InsertValuesInBoard2 ;   Jump to the next step
+                                        InsertValuesInBoard1:           mov al,88       ;   Set the character byte
+                                        InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
+
+                        L1InsertValuesInBoardStart:     
+                                                add di,40
+                                                inc si
+                                                loop L1InsertValuesInBoard
+
+        ;   Print the second row
+        mov cx,4
+        mov di,160*9+20           ;   Set the index register to the start of the video memory
+        mov si,4                ;   Set the value to be written to the video memory
+        L2InsertValuesInBoard:  ;   Loop 1
+                
+                mov bl,[BOARD+si]          ;   Get the value from the board
+                cmp bl,2                ;   Check if the board is empty
+                je L2InsertValuesInBoardStart
+                je L2InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
+                mov al,79       ;   Set the character byte
+                jmp L2InsertValuesInBoard2 ;   Jump to the next step
+                        L2InsertValuesInBoard1:           mov al,88       ;   Set the character byte
+                        L2InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
+        L2InsertValuesInBoardStart:
+                                       add di,40
+                                        inc si
+                                        loop L2InsertValuesInBoard
+
+
+        ;   Print the third row
+        mov cx,4
+        mov di,160*14+20           ;   Set the index register to the start of the video memory
+        mov si,8                ;   Set the value to be written to the video memory
+        L3InsertValuesInBoard:  ;   Loop 1
+                
+                mov bl,[BOARD+si]          ;   Set the attribute byte
+                cmp bl,2                ;   Check if the board is empty
+                je L3InsertValuesInBoardStart
+                cmp bl,1                ;   Check if the board is empty
+                je L3InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
+                mov al,79       ;   Set the character byte
+                jmp L3InsertValuesInBoard2 ;   Jump to the next step
+                                L3InsertValuesInBoard1:           mov al,88       ;   Set the character byte
+                                L3InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
+          L3InsertValuesInBoardStart:      
+                add di,40
+                inc si
+                loop L3InsertValuesInBoard
+
+        ;  Print the fourth row
+        mov cx,4
+        mov di,160*19+20           ;   Set the index register to the start of the video memory
+        mov si,12                ;   Set the value to be written to the video memory
+        L4InsertValuesInBoard:  ;   Loop 1
+                
+                mov bl,[BOARD+si]          ;   Set the attribute byte
+                cmp bl,2                ;   Check if the board is empty
+                je L4InsertValuesInBoardStart
+                cmp bl,1                ;   Check if the board is empty
+                je L4InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
+                mov al,79       ;   Set the character byte
+                jmp L4InsertValuesInBoard2 ;   Jump to the next step
+                        L4InsertValuesInBoard1:           mov al,88       ;   Set the character byte
+                        L4InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
+                L4InsertValuesInBoardStart:
+                                add di,40
+                                inc si
+                                loop L4InsertValuesInBoard
+        
+
+        popa            ;   Restore the registers
+        ret             ;   Return
+;  -------------------------------------------------------
+CheckOcupied:
+        pusha           ;   Save the registers
+
+
+
+
+
+
+        popa            ;   Restore the registers
+        ret             ;   Return
+;  -------------------------------------------------------
+
+InputFromUser:
+        pusha           ;   Save the registers
+
+        mov ah,0x0
+        mov dl,0x0
+        int 0x16
+        mov [INPUT],al
+
+        popa            ;   Restore the registers
+        ret             ;   Return
+;  -------------------------------------------------------
+Player1:
+        pusha
+        
+        mov ax,0                ;   ax=0
+        mov es,ax               ;   Point es to IVT (Interrupt Vector Table) base
+        mov ax, [es:9*4]
+        mov [P1oldisr],ax       ;   Save the old interrupt service routine
+        mov ax, [es:9*4+2]      ;   Save the old interrupt service routine
+        mov [P1oldisr+2],ax     ;   Save the old segment of interrupt service routine
+        cli                     ;   Disable interrupts
+        mov word[es:9*4],P1kbisr        ; store offset at 9*4
+        mov word[es:9*4+2],cs           ; store segment at 9*4+2
+        sti
+
+        P1kbisr: 
+                    ;mov ah,0x0          ;   Service 0 is for keyboard
+                    ;int 0x16            ;   Call the interrupt service routine
+                    in al,0x60
+
+
+
+                    
+                    K1:
+                        cmp al, 0x02 ; Is 1 Pressed
+                        jne k2 ; no, try next comparison 
+                        mov byte[BOARD],0 
+                        jmp P1kbisrEnd ; leave interrupt routine 
+                    k2: 
+                        cmp al, 0x03 ; is 2 Pressed
+                        jne k3 ; no, try next comparison 
+                        mov byte[BOARD+1],0
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k3:
+                        cmp al, 0x04 ; is 3 Pressed
+                        jne k4 ; no, try next comparison 
+                        mov byte[BOARD+2],0 
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k4:
+                        cmp al, 0x05 ; is 4 Pressed
+                        jne k5 ; no, try next comparison 
+                        mov byte[BOARD+3],0 
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k5:
+                        cmp al, 0x10 ; is Q Pressed
+                        jne k6 ; no, try next comparison 
+                        mov byte[BOARD+4],0
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k6:
+                        cmp al, 0x11 ; is W Pressed
+                        jne k7 ; no, try next comparison 
+                        mov byte[BOARD+5],0
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k7:
+                        cmp al, 0x12 ; is E Pressed
+                        jne k8 ; no, try next comparison 
+                        mov byte[BOARD+6],0 
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k8:
+                        cmp al, 0x13 ; is R Pressed
+                        jne k9 ; no, try next comparison 
+                        mov byte[BOARD+7],0      
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k9:
+                        cmp al, 0x1e ; is A Pressed
+                        jne k10 ; no, try next comparison 
+                        mov byte[BOARD+8],0
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k10:
+                        cmp al, 0x1f ; is S Pressed
+                        jne k11 ; no, try next comparison 
+                        mov byte[BOARD+9],0
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k11:
+                        cmp al, 0x20 ; is D Pressed
+                        jne k12 ; no, try next comparison 
+                        mov byte[BOARD+10],0 
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k12:
+                        cmp al, 0x21 ; is F Pressed
+                        jne k13 ; no, try next comparison 
+                        mov byte[BOARD+11],0 
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k13:
+                        cmp al, 0x2c ; is Z Pressed
+                        jne k14 ; no, try next comparison 
+                        mov byte[BOARD+12],0 
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k14:
+                        cmp al, 0x2d ; is X Pressed
+                        jne k15 ; no, try next comparison 
+                        mov byte[BOARD+13],0
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k15:
+                        cmp al, 0x2e ; is C Pressed
+                        jne k16 ; no, try next comparison 
+                        mov byte[BOARD+14],0 
+                        jmp P1kbisrEnd ; leave interrupt routine
+                    k16:
+                        cmp al, 0x2f ; is V Pressed
+                        jne P1kbisr ; no, try next comparison 
+                        mov byte[BOARD+15],0
+                        jmp P1kbisrEnd ; leave interrupt routine
+
+
+        P1kbisrEnd:
+                        mov ax, [P1oldisr] ; restore old interrupt service routine
+                        mov bx, [P1oldisr+2] ; restore old segment of interrupt service routine
+                        cli                     ;   Disable interrupts
+                        mov word[es:9*4],ax        ; store offset at 9*4
+                        mov word[es:9*4+2],bx           ; store segment at 9*4+2
+                        sti
+
+                        popa
+                        ret
+;  -------------------------------------------------------
+
 ;___________________________________________________________
 ;   --------------------------------------------------------
 ;   FUNCTION: main
@@ -887,20 +1261,15 @@ main:
         
     call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
     call DisplayBoard   ;   Display the board
+l1:    call InsertValuesInBoard            ;  Insert the values in the board
+    call Player1
+     call Player1
+    jmp l1
+    call CheckWinP1
+    call InsertValuesInBoard
+    jmp l1
 
-    call InsertValuesInBoard            ;  Insert the values in the board
-    call AnyKeyPress
-
-    call PrintP1WIN     ;   Print P1WIN
-    call AnyKeyPress
-    call ClearThatUserSegment       ;   Clear that PrintP1WIN segment
-    call AnyKeyPress
-    call PrintP1TURN
-    call AnyKeyPress
-    call ClearThatUpperSegment       ;   Clear that PrintP1TURN segment
-    call AnyKeyPress
-    call AnyKeyPress
-    call PrintGAME_ENDED
+    ;call PrintGAME_ENDED
      
     ;call Game
     ;call displayBoard   ;   Display the board
