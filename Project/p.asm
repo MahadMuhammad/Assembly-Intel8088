@@ -1487,7 +1487,7 @@ main:
 
 EndGame:                ; End Function (Terminates the Program)
     ;call ClearScreen
-    mov ax, 0x4c00      ; Exit to DOS
+    mov ax, 0x4c00      ; Exit to DOSBOX
     int 21h             ; Call DOS interrupt
 ;   --------------------------------------------------------
 ;   END OF CODE
