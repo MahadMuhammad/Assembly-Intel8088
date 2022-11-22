@@ -731,27 +731,31 @@ printstr:                       ; subroutine to print a string
     push cx 
     push si 
     push di 
-    push ds ; push segment of string 
+    push ds                     ; push segment of string 
+
+
     mov ax, [bp+4] 
-    push ax ; push offset of string 
-    call StringLength ; calculate string length
-    cmp ax, 0 ; is the string empty 
-    jz printstr_exit ; no printing if string is empty
-    mov cx, ax ; save length in cx 
+    push ax                     ; push offset of string 
+    call StringLength           ; calculate string length
+    cmp ax, 0                   ; is the string empty 
+    jz printstr_exit            ; no printing if string is empty
+    mov cx, ax                  ; save length in cx 
     mov ax, 0xb800 
-    mov es, ax ; point es to video base 
-    mov al, 80 ; load al with columns per row 
-    mul byte [bp+8] ; multiply with y position 
-    add ax, [bp+10] ; add x position 
-    shl ax, 1 ; turn into byte offset 
-    mov di,ax ; point di to required location 
-    mov si, [bp+4] ; point si to string 
-    mov ah, [bp+6] ; load attribute in ah 
-    cld ; auto increment mode 
+    mov es, ax                  ; point es to video base 
+    mov al, 80                  ; load al with columns per row 
+    mul byte [bp+8]             ; multiply with y position 
+    add ax, [bp+10]             ; add x position 
+    shl ax, 1                   ; turn into byte offset 
+    mov di,ax                   ; point di to required location 
+    mov si, [bp+4]              ; point si to string 
+    mov ah, [bp+6]              ; load attribute in ah 
+    cld                         ; auto increment mode 
+
+
         printstr_nextchar: 
-                lodsb ; load next char in al 
-                stosw ; print char/attribute pair 
-                loop printstr_nextchar ; repeat for the whole string 
+                lodsb                   ; load next char in al 
+                stosw                   ; print char/attribute pair 
+                loop printstr_nextchar  ; repeat for the whole string 
         printstr_exit: 
                 pop di 
                 pop si 
