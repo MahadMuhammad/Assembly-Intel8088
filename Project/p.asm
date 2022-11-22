@@ -1493,10 +1493,3 @@ EndGame:                ; End Function (Terminates the Program)
 ;   END OF CODE
 ;   --------------------------------------------------------
 ;___________________________________________________________
-
-OK:
-        
-        jmp temp
-OK2:
-        
-        call temp
