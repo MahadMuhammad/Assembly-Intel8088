@@ -240,7 +240,7 @@ CheckWinP2:
         popa
         ret
 ;   --------------------------------------------------------
-CheckDraw:
+CheckDraw:              ; Check if the game is a draw
         push cx         ; Save the value of cx
         mov cx,[COUNTS] ; Move the value of COUNTS to cx
         cmp cx,0        ; Check if the value of COUNTS is 0
@@ -248,7 +248,7 @@ CheckDraw:
         pop cx          ; Restore the value of cx
         ret
 ;   --------------------------------------------------------
-TheGameDraws:
+TheGameDraws:                           ; The game is a draw
         call ClearThatUserSegment       ; Clear the user segment
         call PrintDRAW                  ; Print DRAW
         call PrintGAME_ENDED            ; Print GAME ENDED
