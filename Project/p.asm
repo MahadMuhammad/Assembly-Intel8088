@@ -162,7 +162,6 @@ Intro:                             ;   First Prints DOT on screen, wait for user
 
     
             popa            ;   Restore the registers
-           
             ret             ;   Return (to the main function)
 ;   --------------------------------------------------------
 DisplayBoard:                   ; Display the board & call P1Turn function
@@ -352,6 +351,7 @@ DisplayBoard:                   ; Display the board & call P1Turn function
                         cld             ;   clear direction flag
                         rep stosw       ;   Fill the video memory with the attribute byte
 
+                        ; Horizontal Black Line
                         mov ax,0xb800   ;   Set the video memory address
                         mov es,ax       ;   Set the video memory segment
                         mov di,160*21+2     ;   Set a pointer to the start of the video memory
@@ -558,7 +558,7 @@ PrintERROR:
         mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
         mov al,1        ;   subservice - update cursor position
         mov bh,0        ;   page number
-        mov bl,1Ch        ;   attribute byte
+        mov bl,9Ch        ;   attribute byte
         mov dx,0x1614   ;   row 22, column 33
         mov cx,42       ;   number of characters to write (Length of string)
         push cs         ;   push the segment of the string
@@ -577,7 +577,7 @@ PrintWRONGKEY:
         mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
         mov al,1        ;   subservice - update cursor position
         mov bh,0        ;   page number
-        mov bl,1Ch        ;   attribute byte
+        mov bl,9Ch        ;   attribute byte
         mov dx,0x1616   ;   row 22, column 33
         mov cx,24       ;   number of characters to write (Length of string)
         push cs         ;   push the segment of the string
@@ -615,7 +615,7 @@ PrintWELCOME:
         ret            ;   Return
 ;   --------------------------------------------------------
 PrintGAME_ENDED:
-        call ClearScreen        ;   Clear the screen
+        call ColorWhiteScreen        ;   Clear the screen
 
         pusha
 
@@ -646,7 +646,7 @@ PrintPRESSANYKEYTOCONTINUE:
         mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
         mov al,1        ;   subservice - update cursor position
         mov bh,0        ;   page number
-        mov bl,1Ch        ;   attribute byte
+        mov bl,9Ch        ;   attribute byte
         mov dx,0x1614   ;   row 22, column 33
         mov cx,25       ;   number of characters to write (Length of string)
         push cs         ;   push the segment of the string
@@ -668,7 +668,7 @@ PrintP1TURN:
         mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
         mov al,1        ;   subservice - update cursor position
         mov bh,0        ;   page number
-        mov bl,1Ch        ;   attribute byte
+        mov bl,9Ch        ;   attribute byte
         mov dx,0x0118   ;   row 22, column 33
         mov cx,13       ;   number of characters to write (Length of string)
         push cs         ;   push the segment of the string
@@ -689,7 +689,7 @@ PrintP2TURN:
         mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
         mov al,1        ;   subservice - update cursor position
         mov bh,0        ;   page number
-        mov bl,1Ch        ;   attribute byte
+        mov bl,9Ch        ;   attribute byte
         mov dx,0x0118   ;   row 22, column 33
         mov cx,13       ;   number of characters to write (Length of string)
         push cs         ;   push the segment of the string
@@ -772,7 +772,7 @@ PrintMESSAGETICTACTOE:
         push ax         ; push x position 
         mov ax, 0       ;  Move the y position
         push ax         ; Move the y position
-        mov ax,0xF4     ; Red on White Blinking
+        mov ax,0x74     ; Red on White Blinking
         push ax         ; push attribute 
         mov ax, MESSAGETICTACTOE        ;  Move the address of the string 
         push ax         ; push offset of string 
@@ -782,13 +782,115 @@ PrintMESSAGETICTACTOE:
 
         popa            ;   Restore the registers
         ret             ;   Return
+;  -------------------------------------------------------
+InsertValuesInBoard:
+        pusha           ;   Save the registers
+
+        mov ax,0xb800           ;   Set the segment register to the video memory
+        mov es,ax               ;   Set the segment register to the video memory
+        mov ah,0x3F             ;   Set the attribute byte;3Ch is the attribute byte for the board
+        
+
+        ;   Print the first row
+        mov cx,4
+        mov di,160*4+20           ;   Set the index register to the start of the video memory
+        mov si,0                ;   Set the value to be written to the video memory
+        L1InsertValuesInBoard:  ;   Loop 1
+                
+                mov bl,[BOARD+si]          ;   Set the attribute byte
+                cmp bl,1                ;   Check if the board is empty
+                je InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
+                mov al,79       ;   Set the character byte
+                jmp InsertValuesInBoard2 ;   Jump to the next step
+                        InsertValuesInBoard1:           mov al,88       ;   Set the character byte
+                        InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
+                add di,40
+                inc si
+                loop L1InsertValuesInBoard
+
+        ;   Print the second row
+        mov cx,4
+        mov di,160*9+20           ;   Set the index register to the start of the video memory
+        mov si,4                ;   Set the value to be written to the video memory
+        L2InsertValuesInBoard:  ;   Loop 1
+                
+                mov bl,[BOARD+si]          ;   Set the attribute byte
+                cmp bl,1                ;   Check if the board is empty
+                je L2InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
+                mov al,79       ;   Set the character byte
+                jmp L2InsertValuesInBoard2 ;   Jump to the next step
+                        L2InsertValuesInBoard1:           mov al,88       ;   Set the character byte
+                        L2InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
+                add di,40
+                inc si
+                loop L2InsertValuesInBoard
+
+
+        ;   Print the third row
+        mov cx,4
+        mov di,160*14+20           ;   Set the index register to the start of the video memory
+        mov si,8                ;   Set the value to be written to the video memory
+        L3InsertValuesInBoard:  ;   Loop 1
+                
+                mov bl,[BOARD+si]          ;   Set the attribute byte
+                cmp bl,1                ;   Check if the board is empty
+                je L3InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
+                mov al,79       ;   Set the character byte
+                jmp L3InsertValuesInBoard2 ;   Jump to the next step
+                        L3InsertValuesInBoard1:           mov al,88       ;   Set the character byte
+                        L3InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
+                add di,40
+                inc si
+                loop L3InsertValuesInBoard
+
+        ;  Print the fourth row
+        mov cx,4
+        mov di,160*19+20           ;   Set the index register to the start of the video memory
+        mov si,12                ;   Set the value to be written to the video memory
+        L4InsertValuesInBoard:  ;   Loop 1
+                
+                mov bl,[BOARD+si]          ;   Set the attribute byte
+                cmp bl,1                ;   Check if the board is empty
+                je L4InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
+                mov al,79       ;   Set the character byte
+                jmp L4InsertValuesInBoard2 ;   Jump to the next step
+                        L4InsertValuesInBoard1:           mov al,88       ;   Set the character byte
+                        L4InsertValuesInBoard2:           mov  [es:di],ax      ;   Insert M in the board
+                add di,40
+                inc si
+                loop L4InsertValuesInBoard
+        
+
+        popa            ;   Restore the registers
+        ret             ;   Return
+;  -------------------------------------------------------
+ColorWhiteScreen:
+        pusha        ;   Save the registers
+
+        mov ax,0xb800       ;   Set the video memory address
+        mov es,ax           ;   Set the video memory segment
+        mov di,0            ;   Set a pointer to the start of the video memory
+        mov ax,0x7020       ;   Set the attribute byte (0x0e)
+        mov cx,2000         ;   Set the number of characters to write
+
+        cld
+        rep stosw           ;   Fill the video memory with the attribute byte
+
+        popa          ;   Restore the registers
+        ret           ;   Return
+;  -------------------------------------------------------
 ;___________________________________________________________
 ;   --------------------------------------------------------
 ;   FUNCTION: main
 ;   --------------------------------------------------------
 main:
+        
     call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
     call DisplayBoard   ;   Display the board
+
+    call InsertValuesInBoard            ;  Insert the values in the board
+    call AnyKeyPress
+
     call PrintP1WIN     ;   Print P1WIN
     call AnyKeyPress
     call ClearThatUserSegment       ;   Clear that PrintP1WIN segment
@@ -799,11 +901,13 @@ main:
     call AnyKeyPress
     call AnyKeyPress
     call PrintGAME_ENDED
+     
     ;call Game
     ;call displayBoard   ;   Display the board
     ;call displayResult  ;   Display the result
 
 EndGame:                ; End Function (Terminates the Program)
+    ;call ClearScreen
     mov ax, 0x4c00      ; Exit to DOS
     int 21h             ; Call DOS interrupt
 ;   --------------------------------------------------------
