@@ -1140,19 +1140,19 @@ InputFromUser:
 Player1:
         pusha
         
-        mov ax,0                ;   ax=0
-        mov es,ax               ;   Point es to IVT (Interrupt Vector Table) base
-        mov ax, [es:9*4]
-        mov [P1oldisr],ax       ;   Save the old interrupt service routine
-        mov ax, [es:9*4+2]      ;   Save the old interrupt service routine
-        mov [P1oldisr+2],ax     ;   Save the old segment of interrupt service routine
-        cli                     ;   Disable interrupts
-        mov word[es:9*4],P1kbisr        ; store offset at 9*4
-        mov word[es:9*4+2],cs           ; store segment at 9*4+2
-        sti
+        ;xor ax, ax 
+        ;mov es, ax ; point es to IVT base 
+        ;mov ax, [es:9*4] 
+        ;mov [P1oldisr], ax ; save offset of old routine 
+        ;mov ax, [es:9*4+2] 
+        ;mov [P1oldisr+2], ax ; save segment of old routine 
+        ;cli ; disable interrupts 
+        ;mov word [es:9*4], P1kbisr ; store offset at n*4 
+        ;mov [es:9*4+2], cs ; store segment at n*4+2 
+        ;sti ; enable interrupts 
 
         P1kbisr: 
-                    ;mov ah,0x0          ;   Service 0 is for keyboard
+                    ;mov ah,0          ;   Service 0 is for keyboard
                     ;int 0x16            ;   Call the interrupt service routine
                     in al,0x60
 
@@ -1163,92 +1163,91 @@ Player1:
                         cmp al, 0x02 ; Is 1 Pressed
                         jne k2 ; no, try next comparison 
                         mov byte[BOARD],0 
-                        jmp P1kbisrEnd ; leave interrupt routine 
+                        jmp P1kbisrl1 ; leave interrupt routine 
                     k2: 
                         cmp al, 0x03 ; is 2 Pressed
                         jne k3 ; no, try next comparison 
                         mov byte[BOARD+1],0
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k3:
                         cmp al, 0x04 ; is 3 Pressed
                         jne k4 ; no, try next comparison 
                         mov byte[BOARD+2],0 
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k4:
                         cmp al, 0x05 ; is 4 Pressed
                         jne k5 ; no, try next comparison 
                         mov byte[BOARD+3],0 
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k5:
                         cmp al, 0x10 ; is Q Pressed
                         jne k6 ; no, try next comparison 
                         mov byte[BOARD+4],0
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k6:
                         cmp al, 0x11 ; is W Pressed
                         jne k7 ; no, try next comparison 
                         mov byte[BOARD+5],0
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k7:
                         cmp al, 0x12 ; is E Pressed
                         jne k8 ; no, try next comparison 
                         mov byte[BOARD+6],0 
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k8:
                         cmp al, 0x13 ; is R Pressed
                         jne k9 ; no, try next comparison 
                         mov byte[BOARD+7],0      
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k9:
                         cmp al, 0x1e ; is A Pressed
                         jne k10 ; no, try next comparison 
                         mov byte[BOARD+8],0
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k10:
                         cmp al, 0x1f ; is S Pressed
                         jne k11 ; no, try next comparison 
                         mov byte[BOARD+9],0
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k11:
                         cmp al, 0x20 ; is D Pressed
                         jne k12 ; no, try next comparison 
                         mov byte[BOARD+10],0 
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k12:
                         cmp al, 0x21 ; is F Pressed
                         jne k13 ; no, try next comparison 
                         mov byte[BOARD+11],0 
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k13:
                         cmp al, 0x2c ; is Z Pressed
                         jne k14 ; no, try next comparison 
                         mov byte[BOARD+12],0 
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k14:
                         cmp al, 0x2d ; is X Pressed
                         jne k15 ; no, try next comparison 
                         mov byte[BOARD+13],0
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k15:
                         cmp al, 0x2e ; is C Pressed
                         jne k16 ; no, try next comparison 
                         mov byte[BOARD+14],0 
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
                     k16:
                         cmp al, 0x2f ; is V Pressed
                         jne P1kbisr ; no, try next comparison 
                         mov byte[BOARD+15],0
-                        jmp P1kbisrEnd ; leave interrupt routine
+                        jmp P1kbisrl1 ; leave interrupt routine
 
 
-        P1kbisrEnd:
-                        mov ax, [P1oldisr] ; restore old interrupt service routine
-                        mov bx, [P1oldisr+2] ; restore old segment of interrupt service routine
-                        cli                     ;   Disable interrupts
-                        mov word[es:9*4],ax        ; store offset at 9*4
-                        mov word[es:9*4+2],bx           ; store segment at 9*4+2
-                        sti
-
+        P1kbisrl1:
+                ;mov ax, [P1oldisr] ; read old offset in ax 
+                ;mov bx, [P1oldisr+2] ; read old segment in bx 
+                ;cli ; disable interrupts 
+                ;mov [es:9*4], ax ; restore old offset from ax 
+                ;mov [es:9*4+2], bx ; restore old segment from bx 
+                ;sti ; enable interrupts 
                         popa
                         ret
 ;  -------------------------------------------------------
@@ -1263,8 +1262,8 @@ main:
     call DisplayBoard   ;   Display the board
 l1:    call InsertValuesInBoard            ;  Insert the values in the board
     call Player1
-     call Player1
-    jmp l1
+     ;call Player1
+    ;jmp l1
     call CheckWinP1
     call InsertValuesInBoard
     jmp l1
