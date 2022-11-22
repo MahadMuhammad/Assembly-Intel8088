@@ -99,7 +99,7 @@ BOARD:                      ;   Board array
 
 COUNTS:  db 15             ;   Number of positions on the board
 
-P1ORP2:  db 1              ;   Player 1 or Player 2
+P1ORP2:  db 0              ;   Player 1 or Player 2
 
 P1WIN: db 'Player-1 Wins!'  ;   Player 1 wins message
 
@@ -123,9 +123,7 @@ P2TURN: db 'Player-2 Turn'          ;   Player 2 Turn message
 
 MESSAGETICTACTOE: db 'Welcome To TIC TAC TOE by MAHAD', 0       ;  Message to be displayed at the top of screen
 
-P1oldisr: dd 0         ;   Player 1 old interrupt service routine
 
-INPUT: db 0             ;   Input from the keyboard
 ;   --------------------------------------------------------
 ;   BASIC FUNCTIONS
 ;   --------------------------------------------------------
@@ -403,7 +401,7 @@ DisplayBoard:                   ; Display the board & call P1Turn function
 
 
         popa            ;   Restore the registers
-        call PrintP1TURN    ;   Call the PrintP1TURN function
+        ;call PrintP1TURN    ;   Call the PrintP1TURN function
         call PrintMESSAGETICTACTOE
         ret             ;   Return (to the main function)
 
@@ -815,11 +813,13 @@ ColorWhiteScreen:
 ;   --------------------------------------------------------
 P1Win:
                 call PrintP1WIN
+                call AnyKeyPress
                 call PrintGAME_ENDED
                 ret
 ;  -------------------------------------------------------
 P2Win:
                 call PrintP2WIN
+                call AnyKeyPress
                 call PrintGAME_ENDED
                 ret
 ;  -------------------------------------------------------
@@ -1114,165 +1114,376 @@ InsertValuesInBoard:
         popa            ;   Restore the registers
         ret             ;   Return
 ;  -------------------------------------------------------
-CheckOcupied:
-        pusha           ;   Save the registers
-
-
-
-
-
-
-        popa            ;   Restore the registers
-        ret             ;   Return
+Ocupied:
+        call ClearThatUserSegment
+        call PrintERROR
+        jmp P1kbisr
 ;  -------------------------------------------------------
 
 InputFromUser:
-        pusha           ;   Save the registers
-
-        mov ah,0x0
-        mov dl,0x0
-        int 0x16
-        mov [INPUT],al
-
-        popa            ;   Restore the registers
-        ret             ;   Return
-;  -------------------------------------------------------
-Player1:
+        ;call PrintP1TURN
         pusha
-        
-        ;xor ax, ax 
-        ;mov es, ax ; point es to IVT base 
-        ;mov ax, [es:9*4] 
-        ;mov [P1oldisr], ax ; save offset of old routine 
-        ;mov ax, [es:9*4+2] 
-        ;mov [P1oldisr+2], ax ; save segment of old routine 
-        ;cli ; disable interrupts 
-        ;mov word [es:9*4], P1kbisr ; store offset at n*4 
-        ;mov [es:9*4+2], cs ; store segment at n*4+2 
-        ;sti ; enable interrupts 
-
         P1kbisr: 
                     ;mov ah,0          ;   Service 0 is for keyboard
                     ;int 0x16            ;   Call the interrupt service routine
                     in al,0x60
-
-
-
                     
                     K1:
                         cmp al, 0x02 ; Is 1 Pressed
-                        jne k2 ; no, try next comparison 
+                        jne k2 ; no, try next comparison
+                        ;cmp byte[BOARD],2
+                        ;jne Ocupied
                         mov byte[BOARD],0 
                         jmp P1kbisrl1 ; leave interrupt routine 
                     k2: 
                         cmp al, 0x03 ; is 2 Pressed
                         jne k3 ; no, try next comparison 
+                        ;cmp byte[BOARD+1],2
+                        ;jne Ocupied
                         mov byte[BOARD+1],0
                         jmp P1kbisrl1 ; leave interrupt routine
                     k3:
                         cmp al, 0x04 ; is 3 Pressed
                         jne k4 ; no, try next comparison 
+                        ;cmp byte[BOARD+2],2
+                        ;jne Ocupied
                         mov byte[BOARD+2],0 
                         jmp P1kbisrl1 ; leave interrupt routine
                     k4:
                         cmp al, 0x05 ; is 4 Pressed
                         jne k5 ; no, try next comparison 
+                        ;cmp byte[BOARD+3],2
+                        ;jne Ocupied
                         mov byte[BOARD+3],0 
                         jmp P1kbisrl1 ; leave interrupt routine
                     k5:
                         cmp al, 0x10 ; is Q Pressed
-                        jne k6 ; no, try next comparison 
+                        jne k6 ; no, try next comparison
+                        ;cmp byte[BOARD+4],2
+                        ;jne Ocupied 
                         mov byte[BOARD+4],0
                         jmp P1kbisrl1 ; leave interrupt routine
                     k6:
                         cmp al, 0x11 ; is W Pressed
                         jne k7 ; no, try next comparison 
+                        ;cmp byte[BOARD+5],2
+                        ;jne Ocupied
                         mov byte[BOARD+5],0
                         jmp P1kbisrl1 ; leave interrupt routine
                     k7:
                         cmp al, 0x12 ; is E Pressed
                         jne k8 ; no, try next comparison 
+                        ;cmp byte[BOARD+6],2
+                        ;jne Ocupied
                         mov byte[BOARD+6],0 
                         jmp P1kbisrl1 ; leave interrupt routine
                     k8:
                         cmp al, 0x13 ; is R Pressed
                         jne k9 ; no, try next comparison 
+                        ;cmp byte[BOARD+7],2
+                        ;jne Ocupied
                         mov byte[BOARD+7],0      
                         jmp P1kbisrl1 ; leave interrupt routine
                     k9:
                         cmp al, 0x1e ; is A Pressed
-                        jne k10 ; no, try next comparison 
+                        jne k10 ; no, try next comparison
+                        ;cmp byte[BOARD+8],2
+                        ;jne Ocupied 
                         mov byte[BOARD+8],0
                         jmp P1kbisrl1 ; leave interrupt routine
                     k10:
                         cmp al, 0x1f ; is S Pressed
                         jne k11 ; no, try next comparison 
+                        ;cmp byte[BOARD+9],2
+                        ;jne Ocupied
                         mov byte[BOARD+9],0
                         jmp P1kbisrl1 ; leave interrupt routine
                     k11:
                         cmp al, 0x20 ; is D Pressed
                         jne k12 ; no, try next comparison 
+                        ;cmp byte[BOARD+10],2
+                        ;jne Ocupied
                         mov byte[BOARD+10],0 
                         jmp P1kbisrl1 ; leave interrupt routine
                     k12:
                         cmp al, 0x21 ; is F Pressed
-                        jne k13 ; no, try next comparison 
-                        mov byte[BOARD+11],0 
+                        jne k13 ; no, try next comparison
+                        ;cmp byte[BOARD+11],2
+                        ;jne Ocupied 
+                        mov byte[BOARD+11],0
                         jmp P1kbisrl1 ; leave interrupt routine
                     k13:
                         cmp al, 0x2c ; is Z Pressed
                         jne k14 ; no, try next comparison 
-                        mov byte[BOARD+12],0 
+                        ;cmp byte[BOARD+12],2
+                        ;jne Ocupied
+                        mov byte[BOARD+12],0
                         jmp P1kbisrl1 ; leave interrupt routine
                     k14:
                         cmp al, 0x2d ; is X Pressed
                         jne k15 ; no, try next comparison 
+                        ;cmp byte[BOARD+13],2
+                        ;jne Ocupied
                         mov byte[BOARD+13],0
                         jmp P1kbisrl1 ; leave interrupt routine
                     k15:
                         cmp al, 0x2e ; is C Pressed
                         jne k16 ; no, try next comparison 
+                        ;cmp byte[BOARD+14],2
+                        ;jne Ocupied
                         mov byte[BOARD+14],0 
                         jmp P1kbisrl1 ; leave interrupt routine
                     k16:
                         cmp al, 0x2f ; is V Pressed
                         jne P1kbisr ; no, try next comparison 
+                        ;cmp byte[BOARD+15],2
+                        ;jne Ocupied
                         mov byte[BOARD+15],0
                         jmp P1kbisrl1 ; leave interrupt routine
 
 
         P1kbisrl1:
-                ;mov ax, [P1oldisr] ; read old offset in ax 
-                ;mov bx, [P1oldisr+2] ; read old segment in bx 
-                ;cli ; disable interrupts 
-                ;mov [es:9*4], ax ; restore old offset from ax 
-                ;mov [es:9*4+2], bx ; restore old segment from bx 
-                ;sti ; enable interrupts 
                         popa
+                        mov byte [P1ORP2],1
                         ret
 ;  -------------------------------------------------------
+Occupied2:
+        call ClearThatUserSegment
+        call PrintERROR
+        jmp P1kbisr2
+;  -------------------------------------------------------
+InputFromUser2:
+        ;call PrintP2TURN
+        pusha
+        P1kbisr2: 
+                    ;mov ah,0          ;   Service 0 is for keyboard
+                    ;int 0x16            ;   Call the interrupt service routine
+                    in al,0x60
+                    
+                    p2K1:
+                        cmp al, 0x02 ; Is 1 Pressed
+                        jne p2k2 ; no, try next comparison
+                        ;cmp byte[BOARD],2
+                        ;jne Occupied2
+                        mov byte[BOARD],1 
+                        jmp P1kbisrl2 ; leave interrupt routine 
+                    p2k2: 
+                        cmp al, 0x03 ; is 2 Pressed
+                        jne p2k3 ; no, try next comparison 
+                        ;cmp byte[BOARD+1],2
+                        ;jne Occupied2
+                        mov byte[BOARD+1],1
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k3:
+                        cmp al, 0x04 ; is 3 Pressed
+                        jne p2k4 ; no, try next comparison 
+                        ;cmp byte[BOARD+2],2
+                        ;jne Occupied2
+                        mov byte[BOARD+2],1 
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k4:
+                        cmp al, 0x05 ; is 4 Pressed
+                        jne p2k5 ; no, try next comparison 
+                        ;cmp byte[BOARD+3],2
+                        ;jne Occupied2
+                        mov byte[BOARD+3],1 
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k5:
+                        cmp al, 0x10 ; is Q Pressed
+                        jne p2k6 ; no, try next comparison
+                        ;cmp byte[BOARD+4],2
+                        ;jne Occupied2 
+                        mov byte[BOARD+4],1
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k6:
+                        cmp al, 0x11 ; is W Pressed
+                        jne p2k7 ; no, try next comparison 
+                        ;cmp byte[BOARD+5],2
+                        ;jne Occupied2
+                        mov byte[BOARD+5],1
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k7:
+                        cmp al, 0x12 ; is E Pressed
+                        jne p2k8 ; no, try next comparison 
+                        ;cmp byte[BOARD+6],2
+                        ;jne Occupied2
+                        mov byte[BOARD+6],1 
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k8:
+                        cmp al, 0x13 ; is R Pressed
+                        jne p2k9 ; no, try next comparison 
+                        ;cmp byte[BOARD+7],2
+                        ;jne Occupied2
+                        mov byte[BOARD+7],1      
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k9:
+                        cmp al, 0x1e ; is A Pressed
+                        jne p2k10 ; no, try next comparison
+                        ;cmp byte[BOARD+8],2
+                        ;jne Occupied2 
+                        mov byte[BOARD+8],1
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k10:
+                        cmp al, 0x1f ; is S Pressed
+                        jne p2k11 ; no, try next comparison 
+                        ;cmp byte[BOARD+9],2
+                        ;jne Occupied2
+                        mov byte[BOARD+9],1
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k11:
+                        cmp al, 0x20 ; is D Pressed
+                        jne p2k12 ; no, try next comparison 
+                        ;cmp byte[BOARD+10],2
+                        ;jne Occupied2
+                        mov byte[BOARD+10],1 
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k12:
+                        cmp al, 0x21 ; is F Pressed
+                        jne p2k13 ; no, try next comparison
+                        ;cmp byte[BOARD+11],2
+                        ;jne Occupied2 
+                        mov byte[BOARD+11],1
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k13:
+                        cmp al, 0x2c ; is Z Pressed
+                        jne p2k14 ; no, try next comparison 
+                        ;cmp byte[BOARD+12],2
+                        ;jne Occupied2
+                        mov byte[BOARD+12],1
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k14:
+                        cmp al, 0x2d ; is X Pressed
+                        jne p2k15 ; no, try next comparison 
+                        ;cmp byte[BOARD+13],2
+                        ;jne Occupied2
+                        mov byte[BOARD+13],1
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k15:
+                        cmp al, 0x2e ; is C Pressed
+                        jne p2k16 ; no, try next comparison 
+                        ;cmp byte[BOARD+14],2
+                        ;jne Occupied2
+                        mov byte[BOARD+14],1 
+                        jmp P1kbisrl2 ; leave interrupt routine
+                    p2k16:
+                        cmp al, 0x2f ; is V Pressed
+                        jne P1kbisr2 ; no, try next comparison 
+                        ;cmp byte[BOARD+15],2
+                        ;jne Occupied2
+                        mov byte[BOARD+15],1
+                        jmp P1kbisrl2 ; leave interrupt routine
 
+
+        P1kbisrl2:
+                        popa
+                        mov byte [P1ORP2],0
+                        ret
+;  -------------------------------------------------------
+;   --------------------------------------------------------
+CheckDraw:              ; Check if the game is a draw
+        push cx         ; Save the value of cx
+        mov cx,[COUNTS] ; Move the value of COUNTS to cx
+        cmp cx,0        ; Check if the value of COUNTS is 0
+        je TheGameDraws ; If yes, jump to TheGameDraws
+        pop cx          ; Restore the value of cx
+        ret
+;   --------------------------------------------------------
+TheGameDraws:                           ; The game is a draw
+        call ClearThatUserSegment       ; Clear the user segment
+        call PrintDRAW                  ; Print DRAW
+        call PrintGAME_ENDED            ; Print GAME ENDED
+;   --------------------------------------------------------
+
+DECCOUNT:
+        mov cx,[COUNTS]
+        dec cx
+        mov [COUNTS],cx
+        call AnyKeyPress
+
+
+        ret
+MainGame:
+        call Player1    ;1)
+                call DECCOUNT
+        call Player2    ;2)
+                call DECCOUNT
+        call Player1    ;3)
+                call DECCOUNT
+        call Player2    ;4)
+                call DECCOUNT
+        call Player1    ;5)
+                call DECCOUNT
+        call Player2    ;6)
+                call DECCOUNT
+        call Player1    ;7)
+                call DECCOUNT
+        call Player2    ;8)
+                call DECCOUNT
+        call Player1    ;9)
+                call DECCOUNT
+        call Player2    ;10)
+                call DECCOUNT
+        call Player1    ;11)
+                call DECCOUNT
+        call Player2    ;12)
+                call DECCOUNT
+        call Player1    ;13)
+                call DECCOUNT
+        call Player2    ;14)
+                call DECCOUNT
+        call Player1    ;15)
+                call DECCOUNT
+
+
+
+                        
+        ret
+;   --------------------------------------------------------
+
+Player1:
+        call PrintP1TURN        ;   Print P1 TURN
+    GOLP1: call ClearThatUserSegment        
+    call InputFromUser      ;   Call the InputFromUser procedure
+        call InsertValuesInBoard
+        call CheckWinP1       ;   Check if the game is won
+        call CheckDraw        ;   Check if the game is a draw
+
+        mov byte [P1ORP2],1
+        ret
+;   --------------------------------------------------------
+Player2:
+        call PrintP2TURN        ;   Print P2 TURN
+  GOLP2:     call ClearThatUserSegment 
+  call InputFromUser2      ;   Call the InputFromUser procedure
+        call InsertValuesInBoard
+        call CheckWinP2       ;   Check if the game is won
+        call CheckDraw        ;   Check if the game is a draw
+        call DECCOUNT
+        mov byte [P1ORP2],0
+        ret
+;  --------------------------------------------------------
 ;___________________________________________________________
 ;   --------------------------------------------------------
 ;   FUNCTION: main
 ;   --------------------------------------------------------
 main:
-        
     call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
     call DisplayBoard   ;   Display the board
-l1:    call InsertValuesInBoard            ;  Insert the values in the board
-    call Player1
-     ;call Player1
-    ;jmp l1
-    call CheckWinP1
+    temp:
+    call InsertValuesInBoard       ;   Start the game
+        call AnyKeyPress
+        call PrintP1TURN
+    call InputFromUser
     call InsertValuesInBoard
-    jmp l1
+    call AnyKeyPress
+        call PrintP2TURN
+    call  InputFromUser2
+    call InsertValuesInBoard
 
-    ;call PrintGAME_ENDED
-     
-    ;call Game
-    ;call displayBoard   ;   Display the board
-    ;call displayResult  ;   Display the result
+    call CheckWinP1
+
+    call CheckWinP2
+    jmp temp
 
 EndGame:                ; End Function (Terminates the Program)
     ;call ClearScreen
@@ -1282,3 +1493,10 @@ EndGame:                ; End Function (Terminates the Program)
 ;   END OF CODE
 ;   --------------------------------------------------------
 ;___________________________________________________________
+
+OK:
+        
+        jmp temp
+OK2:
+        
+        call temp
