@@ -112,12 +112,13 @@ WELCOME: db 'Welcome to 4x4 TIC TAC TOE'          ;   Welcome message
 
 GAME_ENDED: db 'The Game Ended! (Good Bye!)'          ;   Game Ended message
 
-
 PRESSANYKEYTOCONTINUE: db 'Press any key to continue'          ;   Press any key to continue message
 
 P1TURN: db 'Player-1 Turn'          ;   Player 1 Turn message
 
 P2TURN: db 'Player-2 Turn'          ;   Player 2 Turn message
+
+MESSAGETICTACTOE: db 'Welcome To TIC TAC TOE by MAHAD', 0       ;  Message to be displayed at the top of screen
 
 ;   --------------------------------------------------------
 ;   BASIC FUNCTIONS
@@ -397,6 +398,7 @@ DisplayBoard:                   ; Display the board & call P1Turn function
 
         popa            ;   Restore the registers
         call PrintP1TURN    ;   Call the PrintP1TURN function
+        call PrintMESSAGETICTACTOE
         ret             ;   Return (to the main function)
 
 
@@ -434,6 +436,7 @@ ClearThatUpperSegment:
         ret             ;   Return
 ;   --------------------------------------------------------
 
+;___________________________________________________________
 ;   --------------------------------------------------------
 ;   EXTRA FUNCTIONS
 ;   --------------------------------------------------------
@@ -699,8 +702,82 @@ PrintP2TURN:
         popa            ;   Restore the registers
         ret            ;   Return
 ;     -------------------------------------------------------
+StringLength:           ; This function return length of string in ax register
+    push bp             ;   Save the base pointer
+    mov bp,sp           ;   Set the base pointer to the stack pointer
+    push es             ;   Save the segment register
+    push cx             ;   Save the counter
+    push di             ;   Save the index register
 
+    les di, [bp+4]      ; point es:di to string 
+    mov cx, 0xffff      ; load maximum number in cx 
+    mov al,0            ; load a zero in al 
+    repne scasb         ; find zero in the string 
+    mov ax, 0xffff      ; load maximum number in ax 
+    sub ax, cx          ; find change in cx 
+    dec ax              ; exclude null from length 
 
+    pop di 
+    pop cx 
+    pop es 
+    pop bp 
+    ret 4 
+;  -------------------------------------------------------  
+printstr:                       ; subroutine to print a string
+    push bp                     ; takes the x position, y position, attribute, and address of a null 
+    mov bp, sp                  ; terminated string as parameters
+    push es 
+    push ax 
+    push cx 
+    push si 
+    push di 
+    push ds ; push segment of string 
+    mov ax, [bp+4] 
+    push ax ; push offset of string 
+    call StringLength ; calculate string length
+    cmp ax, 0 ; is the string empty 
+    jz printstr_exit ; no printing if string is empty
+    mov cx, ax ; save length in cx 
+    mov ax, 0xb800 
+    mov es, ax ; point es to video base 
+    mov al, 80 ; load al with columns per row 
+    mul byte [bp+8] ; multiply with y position 
+    add ax, [bp+10] ; add x position 
+    shl ax, 1 ; turn into byte offset 
+    mov di,ax ; point di to required location 
+    mov si, [bp+4] ; point si to string 
+    mov ah, [bp+6] ; load attribute in ah 
+    cld ; auto increment mode 
+        printstr_nextchar: 
+                lodsb ; load next char in al 
+                stosw ; print char/attribute pair 
+                loop printstr_nextchar ; repeat for the whole string 
+        printstr_exit: 
+                pop di 
+                pop si 
+                pop cx 
+                pop ax 
+                pop es 
+                pop bp 
+                ret 8 
+;  -------------------------------------------------------
+PrintMESSAGETICTACTOE:
+        pusha           ;   Save the registers
+
+        mov ax, 22      ;  Move the x position
+        push ax         ; push x position 
+        mov ax, 0       ;  Move the y position
+        push ax         ; Move the y position
+        mov ax,0xF4     ; Red on White Blinking
+        push ax         ; push attribute 
+        mov ax, MESSAGETICTACTOE        ;  Move the address of the string 
+        push ax         ; push offset of string 
+        call printstr   ; print the string 
+        mov ah, 0       ; service 0 – get keystroke 
+        int 0x16        ; call BIOS keyboard service
+
+        popa            ;   Restore the registers
+        ret             ;   Return
 ;___________________________________________________________
 ;   --------------------------------------------------------
 ;   FUNCTION: main
@@ -721,13 +798,6 @@ main:
     ;call Game
     ;call displayBoard   ;   Display the board
     ;call displayResult  ;   Display the result
-
-
-
-
-
-
-
 
 EndGame:                ; End Function (Terminates the Program)
     mov ax, 0x4c00      ; Exit to DOS
