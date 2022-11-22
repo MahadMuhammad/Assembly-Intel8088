@@ -10,18 +10,7 @@ draw:  db 'Tie',0
 occupied: db 'This box is occupied',0
 temp: db 0,0
 
-clrtext:
-	pusha
-	mov ax, 0xb800
-	mov es, ax
-	mov di, 3260
-	mov cx,25
-	mov ah,00010000b
-	mov al,20h
-	cld
-	rep stosw
-	popa
-	ret
+
 	
 delay:
 	push cx
@@ -160,6 +149,19 @@ readcharp1:
 		call printstr
 		jmp terminate
 
+clrtext:
+	pusha
+	mov ax, 0xb800
+	mov es, ax
+	mov di, 3260
+	mov cx,25
+	mov ah,00010000b
+	mov al,20h
+	cld
+	rep stosw
+	popa
+	ret
+	
 p2:
 	pusha
 readcharp2:
