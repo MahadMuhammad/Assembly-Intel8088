@@ -94,7 +94,7 @@
 BOARD:                      ;   Board array
         db 2,2,2,2          ; 1 | 2 | 3 | 4
         db 2,2,2,2          ; Q | W | E | R
-        db 2,2,2,2          ; A | S | D | F
+        db 2,2,2,2         ; A | S | D | F
         db 2,2,2,2          ; Z | X | C | V 
 
 COUNTS:  db 15             ;   Number of positions on the board
@@ -813,13 +813,13 @@ ColorWhiteScreen:
 ;   --------------------------------------------------------
 P1Win:
                 call PrintP1WIN
-                call AnyKeyPress
+                ;call AnyKeyPress
                 call PrintGAME_ENDED
                 ret
 ;  -------------------------------------------------------
 P2Win:
                 call PrintP2WIN
-                call AnyKeyPress
+                ;call AnyKeyPress
                 call PrintGAME_ENDED
                 ret
 ;  -------------------------------------------------------
@@ -1244,7 +1244,8 @@ InputFromUser:
 
         P1kbisrl1:
                         popa
-                        mov byte [P1ORP2],1
+                                call CheckWinP1
+                        ;mov byte [P1ORP2],1
                         ret
 ;  -------------------------------------------------------
 Occupied2:
@@ -1376,7 +1377,8 @@ InputFromUser2:
 
         P1kbisrl2:
                         popa
-                        mov byte [P1ORP2],0
+                                call CheckWinP2
+                        ;mov byte [P1ORP2],0
                         ret
 ;  -------------------------------------------------------
 ;   --------------------------------------------------------
@@ -1470,20 +1472,34 @@ main:
     call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
     call DisplayBoard   ;   Display the board
     temp:
+    
     call InsertValuesInBoard       ;   Start the game
-        call AnyKeyPress
-        call PrintP1TURN
+    call P1TURN
     call InputFromUser
     call InsertValuesInBoard
     call AnyKeyPress
-        call PrintP2TURN
-    call  InputFromUser2
-    call InsertValuesInBoard
 
-    call CheckWinP1
-
-    call CheckWinP2
-    jmp temp
+    call P2TURN
+        call InputFromUser2
+        call InsertValuesInBoard
+        call AnyKeyPress
+        jmp temp
+    ;call InputFromUser
+    ;call InsertValuesInBoard
+    ;call AnyKeyPress
+    ;;call CheckWinP1
+    ;;call CheckWinP2
+    ;;call AnyKeyPress
+    ;    call PrintP2TURN
+    
+    ;call InsertValuesInBoard
+    ;call AnyKeyPress
+    ;;call CheckWinP1
+    ;;call CheckWinP2
+    ;call InsertValuesInBoard
+        ;call CheckWinP1
+    
+    
 
 EndGame:                ; End Function (Terminates the Program)
     ;call ClearScreen
