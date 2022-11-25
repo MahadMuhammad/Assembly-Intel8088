@@ -500,10 +500,11 @@ Delay:                    ;   Delay function
 LongDelay:
         pusha             ;   Save the registers
         
-        mov cx,800     ;   Set the counter to 0xffff
+        mov cx,550    ;   Set the counter to 0xffff
             
             LoopDelay2:                  ;   LoopDelay label
-            	    loop Delay      ;   Loop the LoopDelay label
+                    call Delay
+            	    loop LoopDelay2      ;   Loop the LoopDelay label
         
         popa               ;   Restore the registers
         ret                ;   Return to the caller
