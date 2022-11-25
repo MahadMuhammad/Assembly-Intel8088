@@ -94,7 +94,7 @@
 BOARD:                      ;   Board array
         db 2,2,2,2          ; 1 | 2 | 3 | 4
         db 2,2,2,2          ; Q | W | E | R
-        db 2,2,2,2         ; A | S | D | F
+        db 2,2,2,2          ; A | S | D | F
         db 2,2,2,2          ; Z | X | C | V 
 
 COUNTS:  db 15             ;   Number of positions on the board
@@ -497,6 +497,16 @@ Delay:                    ;   Delay function
         popa               ;   Restore the registers
         ret                ;   Return to the caller
 ;   --------------------------------------------------------
+LongDelay:
+        pusha             ;   Save the registers
+        
+        mov cx,800     ;   Set the counter to 0xffff
+            
+            LoopDelay2:                  ;   LoopDelay label
+            	    loop Delay      ;   Loop the LoopDelay label
+        
+        popa               ;   Restore the registers
+        ret                ;   Return to the caller
 PrintP1WIN:
         call ClearThatUpperSegment
         pusha
@@ -813,13 +823,13 @@ ColorWhiteScreen:
 ;   --------------------------------------------------------
 P1Win:
                 call PrintP1WIN
-                ;call AnyKeyPress
+                call AnyKeyPress
                 call PrintGAME_ENDED
                 ret
 ;  -------------------------------------------------------
 P2Win:
                 call PrintP2WIN
-                ;call AnyKeyPress
+                call AnyKeyPress
                 call PrintGAME_ENDED
                 ret
 ;  -------------------------------------------------------
@@ -1117,23 +1127,28 @@ InsertValuesInBoard:
 Ocupied:
         call ClearThatUserSegment
         call PrintERROR
+        call LongDelay
+        call ClearThatUserSegment
         jmp P1kbisr
 ;  -------------------------------------------------------
-
+P1kbisrl1:
+                        popa
+                        ret
 InputFromUser:
         ;call PrintP1TURN
         pusha
         P1kbisr: 
-                    ;mov ah,0          ;   Service 0 is for keyboard
-                    ;int 0x16            ;   Call the interrupt service routine
+                    cmp byte [P1ORP2],0
+                    jne P1kbisrl1
                     in al,0x60
                     
                     K1:
                         cmp al, 0x02 ; Is 1 Pressed
                         jne k2 ; no, try next comparison
-                        ;cmp byte[BOARD],2
-                        ;jne Ocupied
+                        cmp byte [BOARD],2
+                        jne Ocupied
                         mov byte[BOARD],0 
+                        mov byte [P1ORP2],1
                         jmp P1kbisrl1 ; leave interrupt routine 
                     k2: 
                         cmp al, 0x03 ; is 2 Pressed
@@ -1242,11 +1257,7 @@ InputFromUser:
                         jmp P1kbisrl1 ; leave interrupt routine
 
 
-        P1kbisrl1:
-                        popa
-                                call CheckWinP1
-                        ;mov byte [P1ORP2],1
-                        ret
+        
 ;  -------------------------------------------------------
 Occupied2:
         call ClearThatUserSegment
@@ -1377,8 +1388,7 @@ InputFromUser2:
 
         P1kbisrl2:
                         popa
-                                call CheckWinP2
-                        ;mov byte [P1ORP2],0
+                        mov byte [P1ORP2],0
                         ret
 ;  -------------------------------------------------------
 ;   --------------------------------------------------------
@@ -1469,37 +1479,15 @@ Player2:
 ;   FUNCTION: main
 ;   --------------------------------------------------------
 main:
-    call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
-    call DisplayBoard   ;   Display the board
-    temp:
-    
-    call InsertValuesInBoard       ;   Start the game
-    call P1TURN
-    call InputFromUser
-    call InsertValuesInBoard
-    call AnyKeyPress
-
-    call P2TURN
-        call InputFromUser2
-        call InsertValuesInBoard
-        call AnyKeyPress
-        jmp temp
-    ;call InputFromUser
-    ;call InsertValuesInBoard
-    ;call AnyKeyPress
-    ;;call CheckWinP1
-    ;;call CheckWinP2
-    ;;call AnyKeyPress
-    ;    call PrintP2TURN
-    
-    ;call InsertValuesInBoard
-    ;call AnyKeyPress
-    ;;call CheckWinP1
-    ;;call CheckWinP2
-    ;call InsertValuesInBoard
-        ;call CheckWinP1
-    
-    
+        jmp mahad
+     mov ah,0x00         ;   Set the interrupt number
+     int 0x16            ;   Call the interrupt
+    ;in al,60h
+    ;mov ah,0
+    ;int 0x16
+    cmp al, 0x1e ; is Q Pressed
+    jne main
+    jmp mahad
 
 EndGame:                ; End Function (Terminates the Program)
     ;call ClearScreen
@@ -1509,3 +1497,11 @@ EndGame:                ; End Function (Terminates the Program)
 ;   END OF CODE
 ;   --------------------------------------------------------
 ;___________________________________________________________
+
+mahad:
+call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
+    call DisplayBoard   ;   Display the board
+        call ColorWhiteScreen
+        call InsertValuesInBoard       ;   Start the game
+        call PrintP1TURN
+        jmp main

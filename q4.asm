@@ -28,6 +28,23 @@ printapressed:
     ;pop ax
     ;pop es
 
+    pusha
+
+        mov ah,0x13     ;   Service 13h - Write Character and Attribute to Cursor Position
+        mov al,1        ;   subservice - update cursor position
+        mov bh,0        ;   page number
+        mov bl,07h        ;   attribute byte
+        mov dx,0x0   ;   row 22, column 33
+        mov cx,[strl]       ;   number of characters to write (Length of string)
+        push cs         ;   push the segment of the string
+        pop es          ;   pop the segment of the string 
+
+        mov bp,ifbpressed    ;   set the pointer to the string
+        int 0x10        ;   call the interrupt
+        popa 
+        ret
+
+    
     mov byte [es:0], 'H' ; yes, print H at first column 
     mov byte [es:2], 'e' ; yes, print e at first column 
     mov byte [es:4], ' ' ; yes, print ' '  at first column 
@@ -153,9 +170,9 @@ kbisr:
                 iret ; return from interrupt 
 start: 
     ; wait for keypress 
-    mov ah, 0x1        ; input char is 0x1 in ah 
-    int 0x21 
-    call clrscr        ; call clrscr function
+    ;mov ah, 0x1        ; input char is 0x1 in ah 
+    ;int 0x21 
+    ;call clrscr        ; call clrscr function
 
 
     xor ax, ax 
