@@ -99,7 +99,7 @@ BOARD:                      ;   Board array
 
 COUNTS:  db 15             ;   Number of positions on the board
 
-P1ORP2:  db 0              ;   Player 1 or Player 2
+P1ORP2:  db 1              ;   Player 1 or Player 2
 
 P1WIN: db 'Player-1 Wins!'  ;   Player 1 wins message
 
@@ -1130,12 +1130,12 @@ InsertValuesInBoard:
         ret             ;   Return
 ;  -------------------------------------------------------
 OccupiedP1:
-        sti
+        cli
         call ClearThatUserSegment
         call PrintERROR
         call LongDelay
         call ClearThatUserSegment
-        cli
+        sti
         jmp P1EXIT
 ;  -------------------------------------------------------
 InputFromUser1:
@@ -1154,9 +1154,9 @@ InputFromUser1:
                         cmp byte [BOARD+0],2
                         jne P12Pressed
                         mov byte [BOARD+0],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1172,9 +1172,9 @@ InputFromUser1:
                         cmp byte [BOARD+1],2
                         jne P13Pressed
                         mov byte [BOARD+1],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1190,9 +1190,9 @@ InputFromUser1:
                         cmp byte [BOARD+2],2
                         jne P14Pressed
                         mov byte [BOARD+2],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1208,9 +1208,9 @@ InputFromUser1:
                         cmp byte [BOARD+3],2
                         jne P1QPressed
                         mov byte [BOARD+3],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1226,9 +1226,9 @@ InputFromUser1:
                         cmp byte [BOARD+4],2
                         jne P1WPressed
                         mov byte [BOARD+4],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT    
@@ -1244,9 +1244,9 @@ InputFromUser1:
                         cmp byte [BOARD+5],2
                         jne P1EPressed
                         mov byte [BOARD+5],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1262,9 +1262,9 @@ InputFromUser1:
                         cmp byte [BOARD+6],2
                         jne P1RPressed
                         mov byte [BOARD+6],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT 
@@ -1280,9 +1280,9 @@ InputFromUser1:
                         cmp byte [BOARD+7],2
                         jne P1APressed
                         mov byte [BOARD+7],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT  
@@ -1298,9 +1298,9 @@ InputFromUser1:
                         cmp byte [BOARD+8],2
                         jne P1SPressed
                         mov byte [BOARD+8],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1316,9 +1316,9 @@ InputFromUser1:
                         cmp byte [BOARD+9],2
                         jne P1DPressed
                         mov byte [BOARD+9],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1334,9 +1334,9 @@ InputFromUser1:
                         cmp byte [BOARD+10],2
                         jne P1FPressed
                         mov byte [BOARD+10],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1352,9 +1352,9 @@ InputFromUser1:
                         cmp byte [BOARD+11],2
                         jne P1ZPressed
                         mov byte [BOARD+11],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1370,9 +1370,9 @@ InputFromUser1:
                         cmp byte [BOARD+12],2
                         jne P1XPressed
                         mov byte [BOARD+12],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1388,9 +1388,9 @@ InputFromUser1:
                         cmp byte [BOARD+13],2
                         jne P1CPressed
                         mov byte [BOARD+13],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1406,9 +1406,9 @@ InputFromUser1:
                         cmp byte [BOARD+14],2
                         jne P1VPressed
                         mov byte [BOARD+14],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1424,9 +1424,9 @@ InputFromUser1:
                         cmp byte [BOARD+15],2
                         jne P1nomatch
                         mov byte [BOARD+15],0
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],1
                         call DECCOUNT
                         jmp P1EXIT
@@ -1442,22 +1442,23 @@ InputFromUser1:
         
 ;  -------------------------------------------------------
 OccupiedP2:
-        sti
+        cli
         call ClearThatUserSegment
         call PrintERROR
         call LongDelay
         call ClearThatUserSegment
-        cli
+        sti
         jmp P2EXIT
 ;  -------------------------------------------------------
 InputFromUser2:
         push ax
-        mov al, 0x60 ; read the scancode from the keyboard
+        in al, 0x60 ; read the scancode from the keyboard
 
         P2KBISR:
                 P21Pressed:
                         cmp al, 0x02 ; is 1 Pressed
                         jne P21Released ; no, try next comparison
+                        call ColorWhiteScreen
                         cmp byte [BOARD+0],2
                         jne OccupiedP2
                         jmp P2EXIT ; leave interrupt routine
@@ -1467,9 +1468,9 @@ InputFromUser2:
                         cmp byte [BOARD+0],2
                         jne P22Pressed
                         mov byte [BOARD+0],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1485,9 +1486,9 @@ InputFromUser2:
                         cmp byte [BOARD+1],2
                         jne P23Pressed
                         mov byte [BOARD+1],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1503,9 +1504,9 @@ InputFromUser2:
                         cmp byte [BOARD+2],2
                         jne P24Pressed
                         mov byte [BOARD+2],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1521,9 +1522,9 @@ InputFromUser2:
                         cmp byte [BOARD+3],2
                         jne P2QPressed
                         mov byte [BOARD+3],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1539,9 +1540,9 @@ InputFromUser2:
                         cmp byte [BOARD+4],2
                         jne P2WPressed
                         mov byte [BOARD+4],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1557,9 +1558,9 @@ InputFromUser2:
                         cmp byte [BOARD+5],2
                         jne P2EPressed
                         mov byte [BOARD+5],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1575,9 +1576,9 @@ InputFromUser2:
                         cmp byte [BOARD+6],2
                         jne P2RPressed
                         mov byte [BOARD+6],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1593,9 +1594,9 @@ InputFromUser2:
                         cmp byte [BOARD+7],2
                         jne P2APressed
                         mov byte [BOARD+7],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1611,9 +1612,9 @@ InputFromUser2:
                         cmp byte [BOARD+8],2
                         jne P2SPressed
                         mov byte [BOARD+8],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1629,9 +1630,9 @@ InputFromUser2:
                         cmp byte [BOARD+9],2
                         jne P2DPressed
                         mov byte [BOARD+9],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1647,9 +1648,9 @@ InputFromUser2:
                         cmp byte [BOARD+10],2
                         jne P2FPressed
                         mov byte [BOARD+10],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1665,9 +1666,9 @@ InputFromUser2:
                         cmp byte [BOARD+11],2
                         jne P2ZPressed
                         mov byte [BOARD+11],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1683,9 +1684,9 @@ InputFromUser2:
                         cmp byte [BOARD+12],2
                         jne P2XPressed
                         mov byte [BOARD+12],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1701,9 +1702,9 @@ InputFromUser2:
                         cmp byte [BOARD+13],2
                         jne P2CPressed
                         mov byte [BOARD+13],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1719,9 +1720,9 @@ InputFromUser2:
                         cmp byte [BOARD+14],2
                         jne P2VPressed
                         mov byte [BOARD+14],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1737,9 +1738,9 @@ InputFromUser2:
                         cmp byte [BOARD+15],2
                         jne P2nomatch
                         mov byte [BOARD+15],1
-                        sti
-                        call InsertValuesInBoard
                         cli
+                        call InsertValuesInBoard
+                        sti
                         mov byte[P1ORP2],0
                         call DECCOUNT
                         jmp P2EXIT
@@ -1813,15 +1814,15 @@ Player1:
         call PrintP1TURN        ;   Print P1 TURN
         ;call ClearThatUserSegment        
         xor ax, ax 
-        mov es, ax ; point es to IVT base 
+        mov es, ax              ; point es to IVT base 
         mov ax, [es:9*4] 
-        mov [P1OldIser], ax ; save offset of old routine 
+        mov [P1OldIser], ax     ; save offset of old routine 
         mov ax, [es:9*4+2] 
-        mov [P1OldIser+2], ax ; save segment of old routine 
-        cli ; disable interrupts 
-        mov word [es:9*4], InputFromUser1 ; store offset at n*4 
-        mov [es:9*4+2], cs ; store segment at n*4+2 
-        sti ; enable interrupts 
+        mov [P1OldIser+2], ax   ; save segment of old routine 
+        cli                     ; disable interrupts 
+        mov word [es:9*4], InputFromUser1               ; store offset at n*4 
+        mov [es:9*4+2], cs                              ; store segment at n*4+2 
+        sti                                             ; enable interrupts 
 
                 Player1l1: 
                                 cmp byte [P1ORP2],0
@@ -1857,7 +1858,6 @@ Player2:
                 Player2l1: 
                                 cmp byte [P1ORP2],1
                                 je Player2l1
-        ;call PrintWELCOME
         mov ax, [P2OldIser] ; read old offset in ax 
         mov bx, [P2OldIser+2] ; read old segment in bx 
         cli ; disable interrupts 
@@ -1867,6 +1867,7 @@ Player2:
         call InsertValuesInBoard
         call CheckWinP2       ;   Check if the game is won
         call CheckDraw        ;   Check if the game is a draw
+        ret
 ;___________________________________________________________
 ;   --------------------------------------------------------
 ;   FUNCTION: main
@@ -1877,12 +1878,13 @@ main:
     call InsertValuesInBoard       ;   Start the game
     mov cx,5
     temp:
-    call Player1
-    mov byte [P1ORP2],0
+    ;call Player1
+    call Player2
+    mov byte [P1ORP2],1
     loop temp
-    call Player1
-    call PrintPRESSANYKEYTOCONTINUE
-    call AnyKeyPress
+    ;call Player1
+    ;call PrintPRESSANYKEYTOCONTINUE
+    ;call AnyKeyPress
 
 EndGame:                ; End Function (Terminates the Program)
     ;call ClearScreen
