@@ -99,7 +99,7 @@ BOARD:                      ;   Board array
 
 COUNTS:  db 15             ;   Number of positions on the board
 
-P1ORP2:  db 1              ;   Player 1 or Player 2
+P1ORP2:  db 0              ;   Player 1 or Player 2
 
 P1WIN: db 'Player-1 Wins!'  ;   Player 1 wins message
 
@@ -504,7 +504,7 @@ Delay:                    ;   Delay function
 LongDelay:
         pusha             ;   Save the registers
         
-        mov cx,550    ;   Set the counter to 0xffff
+        mov cx,100    ;   Set the counter to 0xffff
             
             LoopDelay2:                  ;   LoopDelay label
                     call Delay
@@ -828,15 +828,15 @@ ColorWhiteScreen:
 ;   --------------------------------------------------------
 P1Win:
                 call PrintP1WIN
-                call AnyKeyPress
-                call PrintGAME_ENDED
-                ret
+                call LongDelay
+                jmp PrintGAME_ENDED
+                pop ax
 ;  -------------------------------------------------------
 P2Win:
                 call PrintP2WIN
-                call AnyKeyPress
-                call PrintGAME_ENDED
-                ret
+                call LongDelay
+                jmp PrintGAME_ENDED
+                pop ax
 ;  -------------------------------------------------------
 CheckWinP1:
         pusha
@@ -1074,6 +1074,7 @@ InsertValuesInBoard:
                 mov bl,[BOARD+si]          ;   Get the value from the board
                 cmp bl,2                ;   Check if the board is empty
                 je L2InsertValuesInBoardStart
+                cmp bl,1
                 je L2InsertValuesInBoard1 ;   If the board is empty, then insert the values in the board
                 mov al,79       ;   Set the character byte
                 jmp L2InsertValuesInBoard2 ;   Jump to the next step
@@ -1876,18 +1877,24 @@ main:
     call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
     call DisplayBoard   ;   Display the board
     call InsertValuesInBoard       ;   Start the game
-    mov cx,5
     temp:
-    ;call Player1
+    call Player1
     call Player2
-    mov byte [P1ORP2],1
-    loop temp
-    ;call Player1
-    ;call PrintPRESSANYKEYTOCONTINUE
-    ;call AnyKeyPress
+    
+    mov cx,[COUNTS]
+    cmp cx,0
+    jne temp
+    call PrintDRAW
+    call LongDelay
 
 EndGame:                ; End Function (Terminates the Program)
-    ;call ClearScreen
+    call ClearScreen
+    mov ax, [P1OldIser] ; read old offset in ax 
+        mov bx, [P1OldIser+2] ; read old segment in bx 
+        cli ; disable interrupts 
+        mov [es:9*4], ax ; restore old offset from ax 
+        mov [es:9*4+2], bx ; restore old segment from bx 
+        sti ; enable interrupts 
     mov ax, 0x4c00      ; Exit to DOSBOX
     int 21h             ; Call DOS interrupt
 ;   --------------------------------------------------------
