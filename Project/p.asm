@@ -123,6 +123,10 @@ P2TURN: db 'Player-2 Turn'          ;   Player 2 Turn message
 
 MESSAGETICTACTOE: db 'Welcome To TIC TAC TOE by MAHAD', 0       ;  Message to be displayed at the top of screen
 
+P1OldIser: dd 0 ; space for saving old Old P1 isr 
+
+P2OldIser: dd 0 ; space for saving old Old P2 isr
+
 
 ;   --------------------------------------------------------
 ;   BASIC FUNCTIONS
@@ -1125,273 +1129,628 @@ InsertValuesInBoard:
         popa            ;   Restore the registers
         ret             ;   Return
 ;  -------------------------------------------------------
-Ocupied:
+OccupiedP1:
+        sti
         call ClearThatUserSegment
         call PrintERROR
         call LongDelay
         call ClearThatUserSegment
-        jmp P1kbisr
+        cli
+        jmp P1EXIT
 ;  -------------------------------------------------------
-P1kbisrl1:
-                        popa
-                        ret
-InputFromUser:
-        ;call PrintP1TURN
-        pusha
-        P1kbisr: 
-                    cmp byte [P1ORP2],0
-                    jne P1kbisrl1
-                    in al,0x60
-                    
-                    K1:
-                        cmp al, 0x02 ; Is 1 Pressed
-                        jne k2 ; no, try next comparison
-                        cmp byte [BOARD],2
-                        jne Ocupied
-                        mov byte[BOARD],0 
-                        mov byte [P1ORP2],1
-                        jmp P1kbisrl1 ; leave interrupt routine 
-                    k2: 
+InputFromUser1:
+        push ax
+        in al, 0x60 ; read a char from keyboard port 
+        P1KBISR: 
+                    P11Pressed:
+                        cmp al, 0x02 ; is 1 Pressed
+                        jne P11Released ; no, try next comparison 
+                        cmp byte [BOARD+0],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                    P11Released:
+                        cmp al,0x82     ;  Check if 1 is released
+                        jne P12Pressed
+                        cmp byte [BOARD+0],2
+                        jne P12Pressed
+                        mov byte [BOARD+0],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                    P12Pressed:
                         cmp al, 0x03 ; is 2 Pressed
-                        jne k3 ; no, try next comparison 
-                        ;cmp byte[BOARD+1],2
-                        ;jne Ocupied
-                        mov byte[BOARD+1],0
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k3:
+                        jne P12Released ; no, try next comparison 
+                        cmp byte [BOARD+1],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                    P12Released:
+                        cmp al,0x83     ;  Check if 2 is released
+                        jne P13Pressed
+                        cmp byte [BOARD+1],2
+                        jne P13Pressed
+                        mov byte [BOARD+1],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                    P13Pressed:
                         cmp al, 0x04 ; is 3 Pressed
-                        jne k4 ; no, try next comparison 
-                        ;cmp byte[BOARD+2],2
-                        ;jne Ocupied
-                        mov byte[BOARD+2],0 
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k4:
+                        jne P13Released ; no, try next comparison
+                        cmp byte [BOARD+2],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                    P13Released:
+                        cmp al,0x84     ;  Check if 3 is released
+                        jne P14Pressed
+                        cmp byte [BOARD+2],2
+                        jne P14Pressed
+                        mov byte [BOARD+2],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                    P14Pressed:
                         cmp al, 0x05 ; is 4 Pressed
-                        jne k5 ; no, try next comparison 
-                        ;cmp byte[BOARD+3],2
-                        ;jne Ocupied
-                        mov byte[BOARD+3],0 
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k5:
+                        jne P14Released ; no, try next comparison
+                        cmp byte [BOARD+3],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                    P14Released:
+                        cmp al,0x85     ;  Check if 4 is released
+                        jne P1QPressed
+                        cmp byte [BOARD+3],2
+                        jne P1QPressed
+                        mov byte [BOARD+3],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                    P1QPressed:
                         cmp al, 0x10 ; is Q Pressed
-                        jne k6 ; no, try next comparison
-                        ;cmp byte[BOARD+4],2
-                        ;jne Ocupied 
-                        mov byte[BOARD+4],0
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k6:
+                        jne P1QReleased ; no, try next comparison
+                        cmp byte [BOARD+4],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                    P1QReleased:
+                        cmp al,0x90     ;  Check if Q is released
+                        jne P1WPressed
+                        cmp byte [BOARD+4],2
+                        jne P1WPressed
+                        mov byte [BOARD+4],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT    
+                     P1WPressed:
                         cmp al, 0x11 ; is W Pressed
-                        jne k7 ; no, try next comparison 
-                        ;cmp byte[BOARD+5],2
-                        ;jne Ocupied
-                        mov byte[BOARD+5],0
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k7:
+                        jne P1WReleased ; no, try next comparison
+                        cmp byte [BOARD+5],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                     P1WReleased:
+                        cmp al,0x91     ;  Check if W is released
+                        jne P1EPressed
+                        cmp byte [BOARD+5],2
+                        jne P1EPressed
+                        mov byte [BOARD+5],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                      P1EPressed:
                         cmp al, 0x12 ; is E Pressed
-                        jne k8 ; no, try next comparison 
-                        ;cmp byte[BOARD+6],2
-                        ;jne Ocupied
-                        mov byte[BOARD+6],0 
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k8:
+                        jne P1EReleased ; no, try next comparison
+                        cmp byte [BOARD+6],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                      P1EReleased:
+                        cmp al,0x92     ;  Check if E is released
+                        jne P1RPressed
+                        cmp byte [BOARD+6],2
+                        jne P1RPressed
+                        mov byte [BOARD+6],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT 
+                P1RPressed:
                         cmp al, 0x13 ; is R Pressed
-                        jne k9 ; no, try next comparison 
-                        ;cmp byte[BOARD+7],2
-                        ;jne Ocupied
-                        mov byte[BOARD+7],0      
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k9:
-                        cmp al, 0x1e ; is A Pressed
-                        jne k10 ; no, try next comparison
-                        ;cmp byte[BOARD+8],2
-                        ;jne Ocupied 
-                        mov byte[BOARD+8],0
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k10:
-                        cmp al, 0x1f ; is S Pressed
-                        jne k11 ; no, try next comparison 
-                        ;cmp byte[BOARD+9],2
-                        ;jne Ocupied
-                        mov byte[BOARD+9],0
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k11:
+                        jne P1RReleased ; no, try next comparison
+                        cmp byte [BOARD+7],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                P1RReleased: 
+                        cmp al,0x93     ;  Check if R is released
+                        jne P1APressed
+                        cmp byte [BOARD+7],2
+                        jne P1APressed
+                        mov byte [BOARD+7],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT  
+                P1APressed:
+                        cmp al, 0x1E ; is A Pressed
+                        jne P1AReleased ; no, try next comparison
+                        cmp byte [BOARD+8],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                P1AReleased:
+                        cmp al,0x9E     ;  Check if A is released
+                        jne P1SPressed
+                        cmp byte [BOARD+8],2
+                        jne P1SPressed
+                        mov byte [BOARD+8],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                P1SPressed:
+                        cmp al, 0x1F ; is S Pressed
+                        jne P1SReleased ; no, try next comparison
+                        cmp byte [BOARD+9],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                P1SReleased:
+                        cmp al,0x9F     ;  Check if S is released
+                        jne P1DPressed
+                        cmp byte [BOARD+9],2
+                        jne P1DPressed
+                        mov byte [BOARD+9],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                P1DPressed:
                         cmp al, 0x20 ; is D Pressed
-                        jne k12 ; no, try next comparison 
-                        ;cmp byte[BOARD+10],2
-                        ;jne Ocupied
-                        mov byte[BOARD+10],0 
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k12:
+                        jne P1DReleased ; no, try next comparison
+                        cmp byte [BOARD+10],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                P1DReleased:
+                        cmp al,0xA0     ;  Check if D is released
+                        jne P1FPressed
+                        cmp byte [BOARD+10],2
+                        jne P1FPressed
+                        mov byte [BOARD+10],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                P1FPressed:
                         cmp al, 0x21 ; is F Pressed
-                        jne k13 ; no, try next comparison
-                        ;cmp byte[BOARD+11],2
-                        ;jne Ocupied 
-                        mov byte[BOARD+11],0
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k13:
-                        cmp al, 0x2c ; is Z Pressed
-                        jne k14 ; no, try next comparison 
-                        ;cmp byte[BOARD+12],2
-                        ;jne Ocupied
-                        mov byte[BOARD+12],0
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k14:
-                        cmp al, 0x2d ; is X Pressed
-                        jne k15 ; no, try next comparison 
-                        ;cmp byte[BOARD+13],2
-                        ;jne Ocupied
-                        mov byte[BOARD+13],0
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k15:
-                        cmp al, 0x2e ; is C Pressed
-                        jne k16 ; no, try next comparison 
-                        ;cmp byte[BOARD+14],2
-                        ;jne Ocupied
-                        mov byte[BOARD+14],0 
-                        jmp P1kbisrl1 ; leave interrupt routine
-                    k16:
-                        cmp al, 0x2f ; is V Pressed
-                        jne P1kbisr ; no, try next comparison 
-                        ;cmp byte[BOARD+15],2
-                        ;jne Ocupied
-                        mov byte[BOARD+15],0
-                        jmp P1kbisrl1 ; leave interrupt routine
-
+                        jne P1FReleased ; no, try next comparison
+                        cmp byte [BOARD+11],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                P1FReleased:
+                        cmp al,0xA1     ;  Check if F is released
+                        jne P1ZPressed
+                        cmp byte [BOARD+11],2
+                        jne P1ZPressed
+                        mov byte [BOARD+11],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                P1ZPressed:
+                        cmp al, 0x2C ; is Z Pressed
+                        jne P1ZReleased ; no, try next comparison
+                        cmp byte [BOARD+12],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                P1ZReleased:
+                        cmp al,0xAC     ;  Check if Z is released
+                        jne P1XPressed
+                        cmp byte [BOARD+12],2
+                        jne P1XPressed
+                        mov byte [BOARD+12],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                P1XPressed:
+                        cmp al, 0x2D ; is X Pressed
+                        jne P1XReleased ; no, try next comparison
+                        cmp byte [BOARD+13],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                P1XReleased:
+                        cmp al,0xAD     ;  Check if X is released
+                        jne P1CPressed
+                        cmp byte [BOARD+13],2
+                        jne P1CPressed
+                        mov byte [BOARD+13],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                P1CPressed:
+                        cmp al, 0x2E ; is C Pressed
+                        jne P1CReleased ; no, try next comparison
+                        cmp byte [BOARD+14],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                P1CReleased:
+                        cmp al,0xAE     ;  Check if C is released
+                        jne P1VPressed
+                        cmp byte [BOARD+14],2
+                        jne P1VPressed
+                        mov byte [BOARD+14],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+                P1VPressed:
+                        cmp al, 0x2F ; is V Pressed
+                        jne P1VReleased ; no, try next comparison
+                        cmp byte [BOARD+15],2
+                        jne OccupiedP1
+                        jmp P1EXIT ; leave interrupt routine
+                P1VReleased:
+                        cmp al,0xAF     ;  Check if V is released
+                        jne P1nomatch
+                        cmp byte [BOARD+15],2
+                        jne P1nomatch
+                        mov byte [BOARD+15],0
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],1
+                        call DECCOUNT
+                        jmp P1EXIT
+        P1nomatch: 
+            pop ax
+            jmp far [cs:P1OldIser] ; call the original ISR 
+        P1EXIT: 
+            mov al, 0x20 
+            out 0x20, al ; send EOI to PIC 
+            pop ax
+            iret ; r
 
         
 ;  -------------------------------------------------------
-Occupied2:
+OccupiedP2:
+        sti
         call ClearThatUserSegment
         call PrintERROR
-        jmp P1kbisr2
+        call LongDelay
+        call ClearThatUserSegment
+        cli
+        jmp P2EXIT
 ;  -------------------------------------------------------
 InputFromUser2:
-        ;call PrintP2TURN
-        pusha
-        P1kbisr2: 
-                    ;mov ah,0          ;   Service 0 is for keyboard
-                    ;int 0x16            ;   Call the interrupt service routine
-                    in al,0x60
-                    
-                    p2K1:
-                        cmp al, 0x02 ; Is 1 Pressed
-                        jne p2k2 ; no, try next comparison
-                        ;cmp byte[BOARD],2
-                        ;jne Occupied2
-                        mov byte[BOARD],1 
-                        jmp P1kbisrl2 ; leave interrupt routine 
-                    p2k2: 
+        push ax
+        mov al, 0x60 ; read the scancode from the keyboard
+
+        P2KBISR:
+                P21Pressed:
+                        cmp al, 0x02 ; is 1 Pressed
+                        jne P21Released ; no, try next comparison
+                        cmp byte [BOARD+0],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P21Released:
+                        cmp al,0x82     ;  Check if 1 is released
+                        jne P22Pressed
+                        cmp byte [BOARD+0],2
+                        jne P22Pressed
+                        mov byte [BOARD+0],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P22Pressed:
                         cmp al, 0x03 ; is 2 Pressed
-                        jne p2k3 ; no, try next comparison 
-                        ;cmp byte[BOARD+1],2
-                        ;jne Occupied2
-                        mov byte[BOARD+1],1
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k3:
+                        jne P22Released ; no, try next comparison
+                        cmp byte [BOARD+1],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P22Released:
+                        cmp al,0x83     ;  Check if 2 is released
+                        jne P23Pressed
+                        cmp byte [BOARD+1],2
+                        jne P23Pressed
+                        mov byte [BOARD+1],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P23Pressed:
                         cmp al, 0x04 ; is 3 Pressed
-                        jne p2k4 ; no, try next comparison 
-                        ;cmp byte[BOARD+2],2
-                        ;jne Occupied2
-                        mov byte[BOARD+2],1 
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k4:
+                        jne P23Released ; no, try next comparison
+                        cmp byte [BOARD+2],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P23Released:
+                        cmp al,0x84     ;  Check if 3 is released
+                        jne P24Pressed
+                        cmp byte [BOARD+2],2
+                        jne P24Pressed
+                        mov byte [BOARD+2],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P24Pressed:
                         cmp al, 0x05 ; is 4 Pressed
-                        jne p2k5 ; no, try next comparison 
-                        ;cmp byte[BOARD+3],2
-                        ;jne Occupied2
-                        mov byte[BOARD+3],1 
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k5:
+                        jne P24Released ; no, try next comparison
+                        cmp byte [BOARD+3],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P24Released:
+                        cmp al,0x85     ;  Check if 4 is released
+                        jne P2QPressed
+                        cmp byte [BOARD+3],2
+                        jne P2QPressed
+                        mov byte [BOARD+3],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2QPressed:
                         cmp al, 0x10 ; is Q Pressed
-                        jne p2k6 ; no, try next comparison
-                        ;cmp byte[BOARD+4],2
-                        ;jne Occupied2 
-                        mov byte[BOARD+4],1
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k6:
+                        jne P2QReleased ; no, try next comparison
+                        cmp byte [BOARD+4],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2QReleased:
+                        cmp al,0x90     ;  Check if Q is released
+                        jne P2WPressed
+                        cmp byte [BOARD+4],2
+                        jne P2WPressed
+                        mov byte [BOARD+4],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2WPressed:
                         cmp al, 0x11 ; is W Pressed
-                        jne p2k7 ; no, try next comparison 
-                        ;cmp byte[BOARD+5],2
-                        ;jne Occupied2
-                        mov byte[BOARD+5],1
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k7:
+                        jne P2WReleased ; no, try next comparison
+                        cmp byte [BOARD+5],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2WReleased:
+                        cmp al,0x91     ;  Check if W is released
+                        jne P2EPressed
+                        cmp byte [BOARD+5],2
+                        jne P2EPressed
+                        mov byte [BOARD+5],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2EPressed:
                         cmp al, 0x12 ; is E Pressed
-                        jne p2k8 ; no, try next comparison 
-                        ;cmp byte[BOARD+6],2
-                        ;jne Occupied2
-                        mov byte[BOARD+6],1 
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k8:
+                        jne P2EReleased ; no, try next comparison
+                        cmp byte [BOARD+6],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2EReleased:
+                        cmp al,0x92     ;  Check if E is released
+                        jne P2RPressed
+                        cmp byte [BOARD+6],2
+                        jne P2RPressed
+                        mov byte [BOARD+6],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2RPressed:
                         cmp al, 0x13 ; is R Pressed
-                        jne p2k9 ; no, try next comparison 
-                        ;cmp byte[BOARD+7],2
-                        ;jne Occupied2
-                        mov byte[BOARD+7],1      
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k9:
-                        cmp al, 0x1e ; is A Pressed
-                        jne p2k10 ; no, try next comparison
-                        ;cmp byte[BOARD+8],2
-                        ;jne Occupied2 
-                        mov byte[BOARD+8],1
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k10:
-                        cmp al, 0x1f ; is S Pressed
-                        jne p2k11 ; no, try next comparison 
-                        ;cmp byte[BOARD+9],2
-                        ;jne Occupied2
-                        mov byte[BOARD+9],1
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k11:
+                        jne P2RReleased ; no, try next comparison
+                        cmp byte [BOARD+7],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2RReleased:
+                        cmp al,0x93     ;  Check if R is released
+                        jne P2APressed
+                        cmp byte [BOARD+7],2
+                        jne P2APressed
+                        mov byte [BOARD+7],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2APressed:
+                        cmp al, 0x1E ; is A Pressed
+                        jne P2AReleased ; no, try next comparison
+                        cmp byte [BOARD+8],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2AReleased:
+                        cmp al,0x9E     ;  Check if A is released
+                        jne P2SPressed
+                        cmp byte [BOARD+8],2
+                        jne P2SPressed
+                        mov byte [BOARD+8],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2SPressed:
+                        cmp al, 0x1F ; is S Pressed
+                        jne P2SReleased ; no, try next comparison
+                        cmp byte [BOARD+9],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2SReleased:
+                        cmp al,0x9F     ;  Check if S is released
+                        jne P2DPressed
+                        cmp byte [BOARD+9],2
+                        jne P2DPressed
+                        mov byte [BOARD+9],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2DPressed:
                         cmp al, 0x20 ; is D Pressed
-                        jne p2k12 ; no, try next comparison 
-                        ;cmp byte[BOARD+10],2
-                        ;jne Occupied2
-                        mov byte[BOARD+10],1 
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k12:
+                        jne P2DReleased ; no, try next comparison
+                        cmp byte [BOARD+10],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2DReleased:
+                        cmp al,0xA0     ;  Check if D is released
+                        jne P2FPressed
+                        cmp byte [BOARD+10],2
+                        jne P2FPressed
+                        mov byte [BOARD+10],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2FPressed:
                         cmp al, 0x21 ; is F Pressed
-                        jne p2k13 ; no, try next comparison
-                        ;cmp byte[BOARD+11],2
-                        ;jne Occupied2 
-                        mov byte[BOARD+11],1
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k13:
-                        cmp al, 0x2c ; is Z Pressed
-                        jne p2k14 ; no, try next comparison 
-                        ;cmp byte[BOARD+12],2
-                        ;jne Occupied2
-                        mov byte[BOARD+12],1
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k14:
-                        cmp al, 0x2d ; is X Pressed
-                        jne p2k15 ; no, try next comparison 
-                        ;cmp byte[BOARD+13],2
-                        ;jne Occupied2
-                        mov byte[BOARD+13],1
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k15:
-                        cmp al, 0x2e ; is C Pressed
-                        jne p2k16 ; no, try next comparison 
-                        ;cmp byte[BOARD+14],2
-                        ;jne Occupied2
-                        mov byte[BOARD+14],1 
-                        jmp P1kbisrl2 ; leave interrupt routine
-                    p2k16:
-                        cmp al, 0x2f ; is V Pressed
-                        jne P1kbisr2 ; no, try next comparison 
-                        ;cmp byte[BOARD+15],2
-                        ;jne Occupied2
-                        mov byte[BOARD+15],1
-                        jmp P1kbisrl2 ; leave interrupt routine
-
-
-        P1kbisrl2:
-                        popa
-                        mov byte [P1ORP2],0
-                        ret
-;  -------------------------------------------------------
+                        jne P2FReleased ; no, try next comparison
+                        cmp byte [BOARD+11],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2FReleased:
+                        cmp al,0xA1     ;  Check if F is released
+                        jne P2ZPressed
+                        cmp byte [BOARD+11],2
+                        jne P2ZPressed
+                        mov byte [BOARD+11],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2ZPressed:
+                        cmp al, 0x2C ; is Z Pressed
+                        jne P2ZReleased ; no, try next comparison
+                        cmp byte [BOARD+12],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2ZReleased:
+                        cmp al,0xAC     ;  Check if Z is released
+                        jne P2XPressed
+                        cmp byte [BOARD+12],2
+                        jne P2XPressed
+                        mov byte [BOARD+12],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2XPressed:
+                        cmp al, 0x2D ; is X Pressed
+                        jne P2XReleased ; no, try next comparison
+                        cmp byte [BOARD+13],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2XReleased:
+                        cmp al,0xAD     ;  Check if X is released
+                        jne P2CPressed
+                        cmp byte [BOARD+13],2
+                        jne P2CPressed
+                        mov byte [BOARD+13],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2CPressed:
+                        cmp al, 0x2E ; is C Pressed
+                        jne P2CReleased ; no, try next comparison
+                        cmp byte [BOARD+14],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2CReleased:
+                        cmp al,0xAE     ;  Check if C is released
+                        jne P2VPressed
+                        cmp byte [BOARD+14],2
+                        jne P2VPressed
+                        mov byte [BOARD+14],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2VPressed:
+                        cmp al, 0x2F ; is V Pressed
+                        jne P2VReleased ; no, try next comparison
+                        cmp byte [BOARD+15],2
+                        jne OccupiedP2
+                        jmp P2EXIT ; leave interrupt routine
+                P2VReleased:
+                        cmp al,0xAF     ;  Check if V is released
+                        jne P2nomatch
+                        cmp byte [BOARD+15],2
+                        jne P2nomatch
+                        mov byte [BOARD+15],1
+                        sti
+                        call InsertValuesInBoard
+                        cli
+                        mov byte[P1ORP2],0
+                        call DECCOUNT
+                        jmp P2EXIT
+                P2nomatch:
+                        pop ax
+                        jmp far [cs:P2OldIser]  ;  If no match, return to old ISR
+                P2EXIT:
+                        mov al, 0x20 
+                        out 0x20, al ; send EOI to PIC 
+                        pop ax
+                        iret ; r
 ;   --------------------------------------------------------
 CheckDraw:              ; Check if the game is a draw
         push cx         ; Save the value of cx
@@ -1411,9 +1770,6 @@ DECCOUNT:
         mov cx,[COUNTS]
         dec cx
         mov [COUNTS],cx
-        call AnyKeyPress
-
-
         ret
 MainGame:
         call Player1    ;1)
@@ -1455,40 +1811,78 @@ MainGame:
 
 Player1:
         call PrintP1TURN        ;   Print P1 TURN
-    GOLP1: call ClearThatUserSegment        
-    call InputFromUser      ;   Call the InputFromUser procedure
+        ;call ClearThatUserSegment        
+        xor ax, ax 
+        mov es, ax ; point es to IVT base 
+        mov ax, [es:9*4] 
+        mov [P1OldIser], ax ; save offset of old routine 
+        mov ax, [es:9*4+2] 
+        mov [P1OldIser+2], ax ; save segment of old routine 
+        cli ; disable interrupts 
+        mov word [es:9*4], InputFromUser1 ; store offset at n*4 
+        mov [es:9*4+2], cs ; store segment at n*4+2 
+        sti ; enable interrupts 
+
+                Player1l1: 
+                                cmp byte [P1ORP2],0
+                                je Player1l1
+        ;call PrintWELCOME
+        mov ax, [P1OldIser] ; read old offset in ax 
+        mov bx, [P1OldIser+2] ; read old segment in bx 
+        cli ; disable interrupts 
+        mov [es:9*4], ax ; restore old offset from ax 
+        mov [es:9*4+2], bx ; restore old segment from bx 
+        sti ; enable interrupts 
         call InsertValuesInBoard
         call CheckWinP1       ;   Check if the game is won
         call CheckDraw        ;   Check if the game is a draw
 
-        mov byte [P1ORP2],1
+
         ret
 ;   --------------------------------------------------------
 Player2:
         call PrintP2TURN        ;   Print P2 TURN
-  GOLP2:     call ClearThatUserSegment 
-  call InputFromUser2      ;   Call the InputFromUser procedure
+        ;call ClearThatUserSegment        
+        xor ax, ax 
+        mov es, ax ; point es to IVT base 
+        mov ax, [es:9*4] 
+        mov [P2OldIser], ax ; save offset of old routine 
+        mov ax, [es:9*4+2] 
+        mov [P2OldIser+2], ax ; save segment of old routine 
+        cli ; disable interrupts 
+        mov word [es:9*4], InputFromUser2 ; store offset at n*4 
+        mov [es:9*4+2], cs ; store segment at n*4+2 
+        sti ; enable interrupts 
+
+                Player2l1: 
+                                cmp byte [P1ORP2],1
+                                je Player2l1
+        ;call PrintWELCOME
+        mov ax, [P2OldIser] ; read old offset in ax 
+        mov bx, [P2OldIser+2] ; read old segment in bx 
+        cli ; disable interrupts 
+        mov [es:9*4], ax ; restore old offset from ax 
+        mov [es:9*4+2], bx ; restore old segment from bx 
+        sti ; enable interrupts 
         call InsertValuesInBoard
         call CheckWinP2       ;   Check if the game is won
         call CheckDraw        ;   Check if the game is a draw
-        call DECCOUNT
-        mov byte [P1ORP2],0
-        ret
-;  --------------------------------------------------------
 ;___________________________________________________________
 ;   --------------------------------------------------------
 ;   FUNCTION: main
 ;   --------------------------------------------------------
 main:
-        jmp mahad
-     mov ah,0x00         ;   Set the interrupt number
-     int 0x16            ;   Call the interrupt
-    ;in al,60h
-    ;mov ah,0
-    ;int 0x16
-    cmp al, 0x1e ; is Q Pressed
-    jne main
-    jmp mahad
+    call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
+    call DisplayBoard   ;   Display the board
+    call InsertValuesInBoard       ;   Start the game
+    mov cx,5
+    temp:
+    call Player1
+    mov byte [P1ORP2],0
+    loop temp
+    call Player1
+    call PrintPRESSANYKEYTOCONTINUE
+    call AnyKeyPress
 
 EndGame:                ; End Function (Terminates the Program)
     ;call ClearScreen
@@ -1499,10 +1893,3 @@ EndGame:                ; End Function (Terminates the Program)
 ;   --------------------------------------------------------
 ;___________________________________________________________
 
-mahad:
-call Intro           ; First Prints DOT on screen, wait for user & prints grey color on screen
-    call DisplayBoard   ;   Display the board
-        call ColorWhiteScreen
-        call InsertValuesInBoard       ;   Start the game
-        call PrintP1TURN
-        jmp main
