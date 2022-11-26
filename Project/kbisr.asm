@@ -26,14 +26,14 @@ PrintWRONGKEY:
 ;   --------------------------------------------------------
 kbisr: 
     push ax 
-    push es 
-    mov ax, 0xb800 
-    mov es, ax ; point es to video memory 
     in al, 0x60 ; read a char from keyboard port 
 nextcmp0:
     cmp al, 0x02 ; Is 1 Pressed
     jne nextcmp ; no, try next comparison 
-    mov byte [es:0], '1' ; yes, print 1 at first column 
+    cmp byte [BOARD+0], 2 ; Is 1 already pressed?
+    jne Ocupied
+    mov byte [BOARD+0], 0 ; mark 1 as pressed
+    mov byte [P!P1ORP2],1
     jmp exit ; leave interrupt routine 
 nextcmp: 
     cmp al, 0x03 ; is 2 Pressed
@@ -191,17 +191,15 @@ nextcmp17:
     mov byte [es:0], ' ' ; yes, clear the second column 
     jmp exit ; leave interrupt routine
 nomatch: 
-    pop es 
     pop ax 
     jmp far [cs:oldisr] ; call the original ISR 
 exit: 
     mov al, 0x20 
     out 0x20, al ; send EOI to PIC 
-    pop es 
     pop ax 
     iret ; return from interrupt 
 start: 
-    
+
     xor ax, ax 
     mov es, ax ; point es to IVT base 
     mov ax, [es:9*4] 
