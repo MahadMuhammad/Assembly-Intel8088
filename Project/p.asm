@@ -1888,13 +1888,14 @@ main:
     call LongDelay
 
 EndGame:                ; End Function (Terminates the Program)
-    call ClearScreen
-    mov ax, [P1OldIser] ; read old offset in ax 
+	mov ax, [P1OldIser] ; read old offset in ax 
         mov bx, [P1OldIser+2] ; read old segment in bx 
         cli ; disable interrupts 
         mov [es:9*4], ax ; restore old offset from ax 
         mov [es:9*4+2], bx ; restore old segment from bx 
-        sti ; enable interrupts 
+        sti ; enable interrupts
+    call ClearScreen
+     
     mov ax, 0x4c00      ; Exit to DOSBOX
     int 21h             ; Call DOS interrupt
 ;   --------------------------------------------------------
