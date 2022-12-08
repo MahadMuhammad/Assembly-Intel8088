@@ -229,6 +229,6 @@ ipx=false
 
 [autoexec]
 # Lines in this section will be run at startup.
-mount C D:\COAL\
+mount C D:\Coding\Assembly\QUIZ
 C:
 
