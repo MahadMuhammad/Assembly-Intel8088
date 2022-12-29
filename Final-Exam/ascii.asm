@@ -1,5 +1,6 @@
 [org 0x0100]
     jmp start
+; a code to convert ascii
    
 start:
     mov ah,0
