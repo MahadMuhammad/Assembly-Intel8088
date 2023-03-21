@@ -7,7 +7,7 @@ bottomAvg: dw 0
 
 ; the data array and its size
 ; change these two to ensure your program works correctly all the time
-marks:     dw 25, 26, 13, 47, 36, 32, 5, 40, 18, 11, 22, 25, 33, 28, 29, 16, 20, 23, 26, 20, 42, 31, 32, 29, 11
+marks:     dw  1, 2, 3, 36, 32, 5, 40, 168, 1, 22, 25, 3, 208, 29, 160, 2, 23, 26, 210, 42, 31, 32, 29, 11
 size:      dw 25
 
 ;------------------------------------------------------------------ 
@@ -57,51 +57,79 @@ noswap:       add  si, 2              ; advance si to next index
 ; Required parameters (on stack): array start address, array size
 ; Returns (again, on stack): the average value
 ;------------------------------------------------------------------
-;------------------------------------------------------------------
-; list_avg subroutine
-; Required parameters (on stack): array start address, array size
-; Returns (again, on stack): the average value
-;------------------------------------------------------------------
-list_avg:
-    push bp
-    mov bp, sp
-    push bx
-    push si
-    push cx
-    xor ax, ax
-    mov cx, [bp+4]      ; cx has size of array
-    mov bx, [bp+6]      ; bx has address of first element in array
-    mov si, cx          ; copy size of array to si for division later
-loop_start:
-    add ax, [bx]        ; adding the values of array one by one
-    add bx, 2           ; adding bx with 2 to go to next element of array
-    loop loop_start     ; looping through array elements
-    mov dx, 0
-    mov bx, si          ; copy size of array to bx for division
-    div bx              ; divide sum by size to get the average
-    mov [bp+8], ax      ; store the average on the stack for return
-    pop cx
-    pop si
-    pop bx
-    pop bp
-    ret 4
+list_avg:     
+	push bp
+	mov bp,sp
+	push bx
+	push si
+	push cx
+	mov cx,[bp+4]   ;so cx has size of array
+	add cx,cx
+	mov bx,[bp+6]   ;bx has address of first element in array
+	mov si,0;
+	mov ax,0
+doitagain:
+	add ax,[bx+si]  ;adding the values of array one by one
+	add si,2	; adding si with 2 to go to next element of array
+	sub cx,2	; At first cx has size of array but to restrict the array that how many times it will iterate we subtract cx with 2 in every iteration until it become zero
+	cmp cx,0
+	jne doitagain	; if cx is not equal to zero hence there are remaining elements in the array to be addressed hence jump to the label doitagain
+	
+	sub sp,2	;making space for output
+	push ax  	;pushing dividend
+	mov ax,[bp+4]
+	push ax  	 ;pushing divisor
+	call divide	 ; calling divide subroutine
+	pop dx		 ;placing the output of divide subrotine in dx
+	mov [bp+8],dx	 ;moving the ouptut from divide subroutine to output of list_avg which will be popped later in start
 
-;------------------------------------------------------------------
+	pop cx
+	pop si
+	pop bx
+	pop bp
+	ret 4
+	
+	
+	
+	
+
+
+;------------------------------------------------------------------  
 ; divide subroutine
 ; Required parameters (on stack): dividend, divisor
 ; Returns (on stack): the integer quotient
 ;------------------------------------------------------------------
-divide:
-    push bp
-    mov bp, sp
-    push ax
-    mov ax, [bp+4]      ; move dividend to ax
-    xor dx, dx
-    div word[bp+6] ; divide by divisor
-    mov [bp+8], ax      ; store quotient on the stack for return
-    pop ax
-    pop bp
-    ret 4                ; go back and remove two params
+divide:       
+	push bp
+	mov bp,sp
+	push ax
+	mov cx,0;
+	mov ax,[bp+6]  ;ax has the sum of array
+check:
+	cmp ax,[bp+4]	;[bp+4] has divisor
+	jge subtract    ;whenever the ax is greater then size of array jump to subtract label
+	mov [bp+8],cx   ;[bp+8] has the final value of average 
+
+	pop ax
+	pop bp
+
+	ret 4
+
+
+
+subtract:   	;the code in this label subtract the the size of array which is [bp+4] from ax until ax become less than the size of array
+sub ax,[bp+4]  	;bp+4 has the size of array
+inc cx		; cx will the incremented by one until the ax become less than the size of array (cx is used here as to record how many iteration have taken until the ax become less than the size of array)
+		;in short at the last iteration cx will have the quotient
+jmp check
+
+
+
+
+
+
+
+
 
 ;------------------------------------------------------------------ 
 ; Main program
@@ -153,9 +181,7 @@ again:			;this whole label purpose is to reach the third last element as si has 
 	pop dx			;popping the output from list_avg into dx
 	mov [bottomAvg],dx	;placing the average of last three elements of array in memory labeled as bottomAvg
 	     
-
-finish:
-  mov  ax, 0x4c00   ; exit program
-  int  21h
-
+              
+finish:       mov ax, 0x4c00
+              int 21h
               
